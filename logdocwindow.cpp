@@ -4,12 +4,14 @@
 
 LogDocWindow::LogDocWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::LogDocWindow)
+    ui(new Ui::LogDocWindow),
+    curFile_("")
 {
     ui->setupUi(this);
     textMain_ = new QsciScintilla();
     setCentralWidget(textMain_);
     setAttribute(Qt::WA_DeleteOnClose);
+
 }
 
 LogDocWindow::~LogDocWindow()
@@ -30,13 +32,10 @@ bool LogDocWindow::loadFile(const QString &fileName)
 
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    //setPlainText(in.readAll());
+    textMain_->setText(in.readAll());
     QApplication::restoreOverrideCursor();
 
-    //setCurrentFile(fileName);
-
-    //connect(document(), &QTextDocument::contentsChanged,
-    //        this, &DocWindow::documentWasModified);
+    setCurrentFile(fileName);
 
     return true;
 }
