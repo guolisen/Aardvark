@@ -8,7 +8,7 @@ LogDocWindow::LogDocWindow(QWidget *parent) :
     curFile_("")
 {
     ui->setupUi(this);
-    textMain_ = new QsciScintilla();
+    textMain_ = new QsciScintilla(this);
     setCentralWidget(textMain_);
     setAttribute(Qt::WA_DeleteOnClose);
 

@@ -29,7 +29,6 @@ protected:
 private:
      void initTabOneWidget();
      void initTabTwoWidget();
-     void initTabThreeWidget();
 
 private slots:
      void slotCurrentChanged(int index);
@@ -46,15 +45,8 @@ private:
     QListWidget *contentsWidget;
     QWidget *widgetScrollArea;
     QScrollArea *scrollArea;
-    QWidget *loginWidget;
-    QWidget *panelWidget;
-    QWidget *statusWidget;
-    QWidget *sessionWidget;
-
-    QWidget *passwordWidget;
-    QWidget *qqlockWidget;
-
-    QWidget *spaceWidget;
+    QWidget *generalWidget;
+    QWidget *fontWidget;
     bool signFlag;
 };
 

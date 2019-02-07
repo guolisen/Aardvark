@@ -29,13 +29,13 @@ SOURCES += \
         mainwindow.cpp \
     logdocwindow.cpp \
     SettingPanel/epushbutton.cpp \
-    SettingPanel/settingpanel.cpp \
+    SettingPanel/settingpanel.cpp
 
 HEADERS += \
         mainwindow.h \
     logdocwindow.h \
     SettingPanel/epushbutton.h \
-    SettingPanel/settingpanel.h \
+    SettingPanel/settingpanel.h
 
 FORMS += \
     mainwindow.ui \

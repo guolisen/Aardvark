@@ -70,7 +70,10 @@ bool MainWindow::loadFile(const QString &fileName)
     LogDocWindow *child = createMdiChild();
     const bool succeeded = child->loadFile(fileName);
     if (succeeded)
+    {
+        child->setWindowTitle(QFileInfo(fileName).fileName());
         child->show();
+    }
     else
         child->close();
     //MainWindow::prependToRecentFiles(fileName);
