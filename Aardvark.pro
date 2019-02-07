@@ -26,13 +26,20 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    logdocwindow.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    logdocwindow.h
 
 FORMS += \
-        mainwindow.ui
+    mainwindow.ui \
+    logdocwindow.ui
+
+INCLUDEPATH += \
+    "E:/code/sci/QScintilla_gpl-2.10.8/Qt4Qt5"
+LIBS += -LE:/code/sci/QScintilla_gpl-2.10.8/build-qscintilla-Desktop_Qt_5_11_2_MinGW_32bit-Debug/debug -lqscintilla2_qt5d
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
