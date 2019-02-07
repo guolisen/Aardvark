@@ -27,11 +27,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    logdocwindow.cpp
+    logdocwindow.cpp \
+    SettingPanel/epushbutton.cpp \
+    SettingPanel/settingpanel.cpp \
 
 HEADERS += \
         mainwindow.h \
-    logdocwindow.h
+    logdocwindow.h \
+    SettingPanel/epushbutton.h \
+    SettingPanel/settingpanel.h \
 
 FORMS += \
     mainwindow.ui \
@@ -45,3 +49,6 @@ LIBS += -LE:/code/sci/QScintilla_gpl-2.10.8/build-qscintilla-Desktop_Qt_5_11_2_M
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc

@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "logdocwindow.h"
+#include "SettingPanel/settingpanel.h"
 #include "ui_mainwindow.h"
 
 //#include <Qsci/qsciscintilla.h>
@@ -28,6 +29,17 @@ MainWindow::MainWindow(QWidget *parent) :
     newAct->setStatusTip(tr("Open a new file"));
     connect(newAct, &QAction::triggered, this, &MainWindow::open);
     fileMenu->addAction(newAct);
+
+    QMenu *confgiMenu = menuBar()->addMenu(tr("&Config"));
+    QAction *settingAct = new QAction(tr("&Preferences"), this);
+    settingAct->setShortcuts(QKeySequence::Preferences);
+    settingAct->setStatusTip(tr("Open Preferences"));
+    connect(settingAct, &QAction::triggered, this, [](){
+        SettingPanel w;
+        if (w.exec() != QDialog::Accepted)
+            return;
+    });
+    confgiMenu->addAction(settingAct);
 }
 MainWindow::~MainWindow()
 {
