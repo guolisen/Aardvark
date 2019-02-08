@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *settingAct = new QAction(tr("&Preferences"), this);
     settingAct->setShortcuts(QKeySequence::Preferences);
     settingAct->setStatusTip(tr("Open Preferences"));
-    connect(settingAct, &QAction::triggered, this, [](){
-        SettingPanel w;
+    connect(settingAct, &QAction::triggered, this, [this](){
+        SettingPanel w(this);
         if (w.exec() != QDialog::Accepted)
             return;
     });

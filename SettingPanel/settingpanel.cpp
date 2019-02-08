@@ -1,4 +1,8 @@
+#include <QFont>
+#include <QFontComboBox>
+#include <QGroupBox>
 #include "settingpanel.h"
+#include "fontform.h"
 #include <Qsci/qsciscintilla.h>
 
 SettingPanel::SettingPanel(QWidget *parent)
@@ -10,25 +14,19 @@ SettingPanel::SettingPanel(QWidget *parent)
 
 {
     resize(900, 600);
-    setStyleSheet("QCheckBox{font-family:arial;font-size:13px;border-radius:2px;color:#000000;}"
-                  "QCheckBox::indicator:checked{color:#FF0000}"
-                  "QTabWidget::pane{border:none;}"
+
+    setStyleSheet("QTabWidget::pane{border:none;}"
                   "QTabWidget::tab-bar{alignment:left;}"
                   "QTabBar::tab{background:transparent;color:#000000;min-width:120px;min-height:35px;}"
                   "QTabBar::tab:hover{background:rgb(255, 255, 255, 255);}"
-                  "QTabBar::tab:selected{border-color: white;color:green;padding-left:5px}"
-                  "QListWidget{background:rgba(240,240,240,255);color:#000000;border:0px solid gray;padding:0px;}"
-                  "QListWidget::item{width:90px;height:38px;border:0px solid gray;padding-left:24px;}"
-                  "QListWidget::item:selected:active{background:#FFFFFF;color:#19649F;border-width:-1;}"
-                  "QListWidget::item:selected{background:#FFFFFF;color:#19649F;}"
-                  "QLabel,QRadioButton{background:transparent;color:#000000;font-family:arial;font-size:13px;}"
-
-                  "QComboBox{border:1px solid #d7d7d7; border-radius: 3px; padding: 1px 3px 1px 3px;}"
-                  "QComboBox:editable{background:transparent;}"
-                  "QComboBox:!editable{background: #fbfbfb;color:#666666}"
-                  "QComboBox::down-arrow:on {top: 1px;left: 1px;}"
-                  "QComboBox QAbstractItemView::item{max-width:30px;min-height:20px;}"
+                  "QTabBar::tab:selected{background:white;border-color: white;color:green;padding-left:5px}"
+                  "QListWidget{font-size:9;background:rgba(240,240,240,255);color:#000000;border:0px solid gray;padding:0px;}"
+                  "QListWidget::item{font-size:9;width:100px;height:38px;border:0px solid gray;padding-left:24px;}"
+                  "QListWidget::item:selected:active{font-size:9;background:#FFFFFF;color:#19649F;border-width:-1;}"
+                  "QListWidget::item:selected{font-size:9;background:#FFFFFF;color:#19649F;}"
                   );
+
+
     rectMove = QRect(0, 0, width(), 35);
 
     tabWidget = new QTabWidget(this);
@@ -46,12 +44,7 @@ SettingPanel::SettingPanel(QWidget *parent)
     connect(contentsWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(slotItemClicked(QListWidgetItem*)));
 
     scrollArea = new QScrollArea(this);
-    scrollArea->setStyleSheet("QScrollArea{background:transparent;}"
-                              "QScrollBar::vertical{background:#35A739;border:-5px solid grey;margin:-2px 0px 0px 0px;width:8px;}"
-                              "QScrollBar::horizontal{background:#35A739;border:0px solid #126691;height:10px;}"
-                              "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background:#D3D3D3;}"
-                              );
-
+    scrollArea->setStyleSheet("QScrollArea{background:transparent;}");
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -142,21 +135,34 @@ void SettingPanel::initTabOneWidget()
 void SettingPanel::initTabTwoWidget()
 {
 
-    fontWidget = new QWidget(widgetScrollArea);
+    fontWidget = new FontForm(widgetScrollArea);
     fontWidget->show();
-
+#if 0
     QCheckBox *lineNum = new QCheckBox(fontWidget);
     lineNum->setFocusPolicy(Qt::NoFocus);
     lineNum->setText(tr("Show Line Number"));
     lineNum->setGeometry(20, 10, 500, 30);
     lineNum->show();
 
-    QsciScintilla* textPrevious = new QsciScintilla(fontWidget);
-    textPrevious->setGeometry(20, 60, 700, 300);
-    textPrevious->setText("09 Jan 2019 15:33:52  - [UIS_PoolProvisioningService] DEBUG - {0:3215784:801003139}[15856|20234|ed7ffb40][operator() @ ../../../components/providers/osls/UIS_PoolProvisioningService/src/Indications.cpp:207] Exit, elapsed time: 1177 ms");
-    textPrevious->setText("1109 Jan 2019 15:33:52  - [UIS_PoolProvisioningService] DEBUG - {0:3215784:801003139}[15856|20234|ed7ffb40][operator() @ ../../../components/providers/osls/UIS_PoolProvisioningService/src/Indications.cpp:207] Exit, elapsed time: 1177 ms");
-    textPrevious->show();
+    QGroupBox* gBox = new QGroupBox(fontWidget);
 
+
+    QFontComboBox* fontComboBox = new QFontComboBox(fontWidget);
+    fontComboBox->setFontFilters(QFontComboBox::AllFonts);
+    fontComboBox->setGeometry(20, 60, 500, 30);
+
+    QsciScintilla* textPrevious = new QsciScintilla(fontWidget);
+    textPrevious->setGeometry(20, 100, 700, 300);
+
+    QFile file(":/SettingPanel/exampleText.txt");
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        return;
+    }
+
+    QTextStream in(&file);
+    textPrevious->setText(in.readAll());
+    textPrevious->show();
+#endif
     fontWidget->setGeometry(0, 0, 820, 400);
     widgetScrollArea->resize(1020, 800);
 }

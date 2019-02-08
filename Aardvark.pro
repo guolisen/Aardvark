@@ -29,17 +29,20 @@ SOURCES += \
         mainwindow.cpp \
     logdocwindow.cpp \
     SettingPanel/epushbutton.cpp \
-    SettingPanel/settingpanel.cpp
+    SettingPanel/settingpanel.cpp \
+    SettingPanel/fontform.cpp
 
 HEADERS += \
         mainwindow.h \
     logdocwindow.h \
     SettingPanel/epushbutton.h \
-    SettingPanel/settingpanel.h
+    SettingPanel/settingpanel.h \
+    SettingPanel/fontform.h
 
 FORMS += \
     mainwindow.ui \
-    logdocwindow.ui
+    logdocwindow.ui \
+    SettingPanel/fontform.ui
 
 INCLUDEPATH += \
     "E:/code/sci/QScintilla_gpl-2.10.8/Qt4Qt5"
@@ -52,3 +55,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     res.qrc
+
+DISTFILES +=

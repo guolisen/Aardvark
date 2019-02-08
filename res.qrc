@@ -9,5 +9,6 @@
         <file>SettingPanel/min_pressed.png</file>
         <file>SettingPanel/setting.png</file>
         <file>SettingPanel/status.png</file>
+        <file>SettingPanel/exampleText.txt</file>
     </qresource>
 </RCC>
