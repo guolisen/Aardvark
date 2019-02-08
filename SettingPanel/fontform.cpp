@@ -7,13 +7,13 @@
 #include <Qsci/qscilexercmake.h>
 #include <QDebug>
 
-FontForm::FontForm(QWidget *parent) :
+FontForm::FontForm(TextEditorConfigPtr configer, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FontForm)
+    ui(new Ui::FontForm),
+    configer_(configer)
 {
     ui->setupUi(this);
     createPanel();
-    readSetting();
 
     connect(ui->checkBox_4, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxProcess(int)));
     connect(ui->checkBox, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxProcess(int)));
@@ -47,7 +47,7 @@ void FontForm::createPanel()
 
     textPrevious_ = new QsciScintilla(this);
     textPrevious_->setGeometry(10, 260, 700, 320);
-    textLexerCMake_ = new QsciLexerCMake;
+    textLexerCMake_ = new QsciLexerCMake(this);
     textPrevious_->setLexer(textLexerCMake_);
 
     QFile file(":/SettingPanel/exampleText.txt");
@@ -58,15 +58,9 @@ void FontForm::createPanel()
     QTextStream in(&file);
     textPrevious_->setText(in.readAll());
 
-
-    textPrevious_->setMarginType(0, QsciScintilla::NumberMargin);
-    textPrevious_->setMarginWidth(0,30);
-    textPrevious_->setCaretLineVisible(true);
-    textPrevious_->setCaretLineBackgroundColor(Qt::lightGray);
-    textPrevious_->SendScintilla(QsciScintilla::SCI_SETCODEPAGE,QsciScintilla::SC_CP_UTF8);
+    configer_->Config(textPrevious_);
 
     textPrevious_->show();
-
 }
 
 void FontForm::readSetting()
@@ -75,7 +69,6 @@ void FontForm::readSetting()
 
     const bool showLineNumber = settings.value("editor/showLineNumber", true).toBool();
     ui->checkBox_4->setChecked(showLineNumber);
-    textPrevious_->setMarginLineNumbers(0, showLineNumber);
 
     const QString editorCharFont = settings.value("editor/editorCharFont", "").toString();
     QFont font;
@@ -95,23 +88,20 @@ void FontForm::readSetting()
     const int editorCharSize = settings.value("editor/editorCharSize", 13).toInt();
     ui->fontSizeSlider->setValue(editorCharSize);
     font.setPointSize(editorCharSize);
-    //textPrevious_->setFont(font);
-    textLexerCMake_->setFont(font);
 
     const QString editorCharColor = settings.value("editor/editorCharColor", "#000000").toString();
     QColor color;
     color.setNamedColor(editorCharColor);
     ui->renkLabel->setPalette(QPalette(color));
     ui->renkLabel->setAutoFillBackground(true);
-    //textPrevious_->setColor(color);
-    textLexerCMake_->setColor(color, 0);
 
     const QString editorBGColor = settings.value("editor/editorBGColor", "#FFFFFF").toString();
     QColor bgcolor;
     bgcolor.setNamedColor(editorBGColor);
     ui->label_2->setPalette(QPalette(bgcolor));
     ui->label_2->setAutoFillBackground(true);
-    textLexerCMake_->setPaper(bgcolor);
+
+    configer_->readSetting();
 }
 
 void FontForm::onSizeProcess(int size)

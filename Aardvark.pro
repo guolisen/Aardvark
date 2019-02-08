@@ -30,14 +30,16 @@ SOURCES += \
     logdocwindow.cpp \
     SettingPanel/epushbutton.cpp \
     SettingPanel/settingpanel.cpp \
-    SettingPanel/fontform.cpp
+    SettingPanel/fontform.cpp \
+    texteditorconfig.cpp
 
 HEADERS += \
         mainwindow.h \
     logdocwindow.h \
     SettingPanel/epushbutton.h \
     SettingPanel/settingpanel.h \
-    SettingPanel/fontform.h
+    SettingPanel/fontform.h \
+    texteditorconfig.h
 
 FORMS += \
     mainwindow.ui \

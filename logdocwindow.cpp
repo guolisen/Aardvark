@@ -2,54 +2,29 @@
 #include "logdocwindow.h"
 #include "ui_logdocwindow.h"
 #include <Qsci/qsciscintilla.h>
+#include <Qsci/qscilexercmake.h>
 
-LogDocWindow::LogDocWindow(QWidget *parent) :
+LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::LogDocWindow),
     curFile_("")
 {
     ui->setupUi(this);
-    textMain_ = new QsciScintilla(this);
-    //QscilexerCpp *textLexer = new QscilexerCpp
+    textMain_  = new QsciScintilla(this);
+    textLexer_ = new QsciLexerCMake(this);
+    textMain_->setLexer(textLexer_);
+
+    configer->Config(textMain_);
 
     setCentralWidget(textMain_);
     setAttribute(Qt::WA_DeleteOnClose);
-    readSetting();
 }
 
 LogDocWindow::~LogDocWindow()
 {
     delete ui;
-}
-
-void LogDocWindow::readSetting()
-{
-    QSettings settings;
-
-    const bool showLineNumber = settings.value("editor/showLineNumber", true).toBool();
-    textMain_->setMarginLineNumbers(textMain_->margins(), showLineNumber);
-
-    const bool bold = settings.value("editor/bold", false).toBool();
-
-    const bool italic = settings.value("editor/italic", false).toBool();
-
-    const bool underline = settings.value("editor/underline", false).toBool();
-
-
-    const int editorCharSize = settings.value("editor/editorCharSize", 13).toInt();
-
-
-    const QString editorCharColor = settings.value("editor/editorCharColor", "#000000").toString();
-    QColor color;
-    color.setNamedColor(editorCharColor);
-
-
-
-    const QString editorCharFont = settings.value("editor/editorCharFont", "").toString();
-    QFont font;
-    font.fromString(editorCharFont);
-    //ui->fontComboBox->setCurrentIndex(ui->fontComboBox->findText(font.family()));
-    //ui->fontComboBox->setCurrentFont(font);
+    delete textMain_;
+    delete textLexer_;
 }
 
 bool LogDocWindow::loadFile(const QString &fileName)

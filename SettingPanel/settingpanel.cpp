@@ -134,7 +134,8 @@ void SettingPanel::initTabOneWidget()
 }
 void SettingPanel::initTabTwoWidget()
 {
-    fontWidget = new FontForm(widgetScrollArea);
+    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    fontWidget = new FontForm(configer, widgetScrollArea);
     fontWidget->show();
     fontWidget->setGeometry(0, 0, 820, 800);
     widgetScrollArea->resize(1020, 800);

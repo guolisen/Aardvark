@@ -2,6 +2,7 @@
 #define FONTFORM_H
 
 #include <QWidget>
+#include "texteditorconfig.h"
 
 namespace Ui {
 class FontForm;
@@ -13,7 +14,7 @@ class FontForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit FontForm(QWidget *parent = nullptr);
+    explicit FontForm(TextEditorConfigPtr configer, QWidget *parent = nullptr);
     ~FontForm();
 
 private slots:
@@ -30,6 +31,7 @@ private:
     Ui::FontForm *ui;
     QsciScintilla* textPrevious_;
     QsciLexerCMake* textLexerCMake_;
+    TextEditorConfigPtr configer_;
 };
 
 #endif // FONTFORM_H

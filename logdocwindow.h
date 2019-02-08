@@ -2,18 +2,19 @@
 #define LOGDOCWINDOW_H
 
 #include <QMainWindow>
+#include "texteditorconfig.h"
 
 namespace Ui {
 class LogDocWindow;
 }
 class QsciScintilla;
-class QscilexerCpp;
+class QsciLexerCMake;
 class LogDocWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit LogDocWindow(QWidget *parent = nullptr);
+    explicit LogDocWindow(TextEditorConfigPtr configer, QWidget *parent = nullptr);
 
     ~LogDocWindow();
     bool loadFile(const QString &fileName);
@@ -21,12 +22,11 @@ public:
 
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
-    void readSetting();
 
 private:
     Ui::LogDocWindow *ui;
     QsciScintilla *textMain_;
-    QscilexerCpp *textLexer_;
+    QsciLexerCMake* textLexer_;
     QString curFile_;
 
 };

@@ -4,8 +4,7 @@
 #include "logdocwindow.h"
 #include "SettingPanel/settingpanel.h"
 #include "ui_mainwindow.h"
-
-//#include <Qsci/qsciscintilla.h>
+#include "texteditorconfig.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -95,7 +94,8 @@ QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 
 LogDocWindow *MainWindow::createMdiChild()
 {
-    LogDocWindow *child = new LogDocWindow;
+    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    LogDocWindow *child = new LogDocWindow(configer);
     ui->mdiArea->addSubWindow(child);
 
 #ifndef QT_NO_CLIPBOARD
