@@ -2,12 +2,12 @@
 #define LOGDOCWINDOW_H
 
 #include <QMainWindow>
-#include <Qsci/qsciscintilla.h>
 
 namespace Ui {
 class LogDocWindow;
 }
-
+class QsciScintilla;
+class QscilexerCpp;
 class LogDocWindow : public QMainWindow
 {
     Q_OBJECT
@@ -21,10 +21,14 @@ public:
 
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
+    void readSetting();
 
+private:
     Ui::LogDocWindow *ui;
     QsciScintilla *textMain_;
+    QscilexerCpp *textLexer_;
     QString curFile_;
+
 };
 
 #endif // LOGDOCWINDOW_H

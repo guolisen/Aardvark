@@ -134,36 +134,9 @@ void SettingPanel::initTabOneWidget()
 }
 void SettingPanel::initTabTwoWidget()
 {
-
     fontWidget = new FontForm(widgetScrollArea);
     fontWidget->show();
-#if 0
-    QCheckBox *lineNum = new QCheckBox(fontWidget);
-    lineNum->setFocusPolicy(Qt::NoFocus);
-    lineNum->setText(tr("Show Line Number"));
-    lineNum->setGeometry(20, 10, 500, 30);
-    lineNum->show();
-
-    QGroupBox* gBox = new QGroupBox(fontWidget);
-
-
-    QFontComboBox* fontComboBox = new QFontComboBox(fontWidget);
-    fontComboBox->setFontFilters(QFontComboBox::AllFonts);
-    fontComboBox->setGeometry(20, 60, 500, 30);
-
-    QsciScintilla* textPrevious = new QsciScintilla(fontWidget);
-    textPrevious->setGeometry(20, 100, 700, 300);
-
-    QFile file(":/SettingPanel/exampleText.txt");
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        return;
-    }
-
-    QTextStream in(&file);
-    textPrevious->setText(in.readAll());
-    textPrevious->show();
-#endif
-    fontWidget->setGeometry(0, 0, 820, 400);
+    fontWidget->setGeometry(0, 0, 820, 800);
     widgetScrollArea->resize(1020, 800);
 }
 
