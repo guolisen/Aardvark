@@ -213,12 +213,12 @@ static void ColouriseQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length
             }
 
             // QsciLexerCem Variable
-            if ( cCurrChar == '$' || isQsciLexerCmakeChar(cCurrChar)) {
+            if ( cCurrChar == '$' || isCemChar(cCurrChar)) {
                 styler.ColourTo(i-1,state);
                 state = SCE_CMAKE_VARIABLE;
 
                 // If it is a number, we must check and set style here first...
-                if ( isQsciLexerCemNumber(cCurrChar) && (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ) )
+                if ( isCemNumber(cCurrChar) && (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ) )
                     styler.ColourTo( i, SCE_CMAKE_NUMBER);
 
                 break;
