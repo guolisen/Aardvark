@@ -3,6 +3,7 @@
 #include "ui_logdocwindow.h"
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexercmake.h>
+#include <Qsci/qscilexercem.h>
 
 LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     QMainWindow(parent),
@@ -11,9 +12,9 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
 {
     ui->setupUi(this);
     textMain_  = new QsciScintilla(this);
-    textLexer_ = new QsciLexerCMake(this);
+    textLexer_ = new QsciLexerCem(this);
     textMain_->setLexer(textLexer_);
-
+//QsciLexerCem
     configer->Config(textMain_);
 
     setCentralWidget(textMain_);

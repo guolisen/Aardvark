@@ -13,7 +13,7 @@ SettingPanel::SettingPanel(QWidget *parent)
       fontWidget(nullptr)
 
 {
-    resize(900, 600);
+    resize(900, 700);
 
     setStyleSheet("QTabWidget::pane{border:none;}"
                   "QTabWidget::tab-bar{alignment:left;}"

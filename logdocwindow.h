@@ -9,6 +9,7 @@ class LogDocWindow;
 }
 class QsciScintilla;
 class QsciLexerCMake;
+class QsciLexerCem;
 class LogDocWindow : public QMainWindow
 {
     Q_OBJECT
@@ -26,7 +27,7 @@ private:
 private:
     Ui::LogDocWindow *ui;
     QsciScintilla *textMain_;
-    QsciLexerCMake* textLexer_;
+    QsciLexerCem* textLexer_;
     QString curFile_;
 
 };

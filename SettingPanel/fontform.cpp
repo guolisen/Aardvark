@@ -59,6 +59,7 @@ void FontForm::createPanel()
     textPrevious_->setText(in.readAll());
 
     configer_->Config(textPrevious_);
+    readSetting();
 
     textPrevious_->show();
 }
@@ -117,7 +118,6 @@ void FontForm::onChangedFont(QFont font)
     settings.setValue("editor/editorCharFont", font.toString());
     readSetting();
 }
-
 
 void FontForm::onCheckBoxProcess(int check)
 {
