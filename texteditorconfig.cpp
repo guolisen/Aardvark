@@ -24,6 +24,7 @@ void TextEditorConfig::Config(QsciScintilla* textSci)
     textSci_->setCaretLineVisible(true);
     textSci_->setCaretLineBackgroundColor(QColor(240, 240, 240));
     textSci_->SendScintilla(QsciScintilla::SCI_SETCODEPAGE,QsciScintilla::SC_CP_UTF8);
+    textSci_->setScrollWidth(20);
 
     readSetting();
 }

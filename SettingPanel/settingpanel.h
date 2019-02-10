@@ -48,6 +48,7 @@ private:
     QWidget *generalWidget;
     QWidget *fontWidget;
     bool signFlag;
+    QPropertyAnimation* animation_;
 };
 
 #endif // SETTINGPANEL_H

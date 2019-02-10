@@ -55,14 +55,36 @@ SettingPanel::SettingPanel(QWidget *parent)
     slotCurrentChanged(0);
 
     minButton = new EPushButton(this);
-    minButton->setPixName(":/SettingPanel/min");
+    minButton->setPixName(":/res/SettingPanel/min");
     minButton->setToolTip(tr("minimize"));
     connect(minButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 
     closeButton = new EPushButton(this);
-    closeButton->setPixName(":/SettingPanel/close");
+    closeButton->setPixName(":/res/SettingPanel/close");
     closeButton->setToolTip(tr("close"));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
+
+
+    animation_ = new QPropertyAnimation(this, "windowOpacity");
+    animation_->setTargetObject(this);
+    animation_->setDuration(1000);
+    animation_->setStartValue(1);
+    animation_->setEndValue(0);
+    animation_->setEasingCurve(QEasingCurve::Linear);
+    connect(animation_, &QPropertyAnimation::finished, this, [this]{close();});
+    //animation_->start();
+#if 0
+    m_pOpacity = new QGraphicsOpacityEffect(this);
+    m_pOpacity->setOpacity(1);
+
+    setGraphicsEffect(m_pOpacity);
+
+    m_pAnimation->setTargetObject(m_pOpacity);
+    m_pAnimation->setPropertyName("opacity");
+
+    m_pAnimation->setStartValue(1);
+    m_pAnimation->setEndValue(0);
+#endif
 }
 
 SettingPanel::~SettingPanel()

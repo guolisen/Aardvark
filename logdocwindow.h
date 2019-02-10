@@ -30,6 +30,7 @@ private:
     QsciLexerCem* textLexer_;
     QString curFile_;
 
+    void createFindBar();
 };
 
 #endif // LOGDOCWINDOW_H

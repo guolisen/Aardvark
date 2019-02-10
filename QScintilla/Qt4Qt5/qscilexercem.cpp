@@ -49,33 +49,24 @@ QString QsciLexerCem::description(int style) const
 {
     switch (style)
     {
-    case Default:
+    case DEFAULT:
         return "Default";
-
-    case Error:
-    case Backticks:
-        return "Error";
-
-    case Comment:
-        return "Comment";
-
-    case Number:
-        return "Number";
-
-    case Keyword:
-        return "Keyword";
-
-    case DoubleQuotedString:
-    case SingleQuotedString:
-    case SingleQuotedHereDocument:
-        return "DoubleQuotedString";
-
-    case Operator:
-    case Identifier:
-    case Scalar:
-    case ParameterExpansion:
-    case HereDocumentDelimiter:
-        return "Operator";
+    case TIME:
+        return "Time";
+    case MODULENAME:
+        return "Module";
+    case LOGLEVEL:
+        return "LogLevel";
+    case THREADID:
+        return "ThreadId";
+    case FUNCTION:
+        return "Function";
+    case FILENAME:
+        return "FileName";
+    case FILENAME_LINENUM:
+        return "LineNumber";
+    case LOG:
+        return "Log";
     }
 
     return "";
@@ -85,32 +76,23 @@ QColor QsciLexerCem::defaultColor(int style) const
 {
     switch (style)
     {
-    case Default:
-        return QColor(0x80,0x80,0x80);
-
-    case Error:
-    case Backticks:
-        return QColor(0xff,0xff,0x00);
-
-    case Comment:
+    case DEFAULT:
+        return QColor(0x00,0x00,0x00);
+    case TIME:
+        return QColor(0x00,0x00,0xFF);
+    case MODULENAME:
         return QColor(0x00,0x7f,0x00);
-
-    case Number:
-        return QColor(0x00,0x7f,0x7f);
-
-    case Keyword:
+    case LOGLEVEL:
         return QColor(0x00,0x00,0x7f);
-
-    case DoubleQuotedString:
-    case SingleQuotedString:
-    case SingleQuotedHereDocument:
+    case THREADID:
+        return QColor(0x00,0x00,0x00);
+    case FUNCTION:
+        return QColor(0x00,0x00,0x7f);
+    case FILENAME:
         return QColor(0x7f,0x00,0x7f);
-
-    case Operator:
-    case Identifier:
-    case Scalar:
-    case ParameterExpansion:
-    case HereDocumentDelimiter:
+    case FILENAME_LINENUM:
+        return QColor(0x80,0x00,0x80);
+    case LOG:
         return QColor(0x00,0x00,0x00);
     }
 

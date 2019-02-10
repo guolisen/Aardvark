@@ -162,219 +162,128 @@ static int classifyWordCem(Sci_PositionU start, Sci_PositionU end, WordList *key
     return SCE_CMAKE_DEFAULT;
 }
 
-static void ColouriseQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *keywordLists[], Accessor &styler)
+
+static void setCemState(StyleContext& sc, int targetState, int& perState)
 {
-    int state = SCE_CMAKE_DEFAULT;
-    if ( startPos > 0 )
-        state = styler.StyleAt(startPos-1); // Use the style from the previous line, usually default, but could be commentbox
+    perState = sc.state;
+    sc.SetState(targetState);
+}
 
-    styler.StartAt( startPos );
-    styler.GetLine( startPos );
-
-    Sci_PositionU nLengthDoc = startPos + length;
-    styler.StartSegment( startPos );
-
-    char cCurrChar;
-    bool bVarInString = false;
-    bool bClassicVarInString = false;
-
-    Sci_PositionU i;
-    for ( i = startPos; i < nLengthDoc; i++ ) {
-        cCurrChar = styler.SafeGetCharAt( i );
-        char cNextChar = styler.SafeGetCharAt(i+1);
-
-        switch (state) {
-        case SCE_CMAKE_DEFAULT:
-            if ( cCurrChar == '#' ) { // we have a comment line
-                styler.ColourTo(i-1, state );
-                state = SCE_CMAKE_COMMENT;
-                break;
+static void ColouriseQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length,  int initStyle, WordList *keywordLists[], Accessor &styler)
+{
+    Sci_PositionU endPos = startPos + length;
+    StyleContext sc(startPos, endPos - startPos, initStyle, styler);
+    bool newLine = true;
+    int perviousState = SCE_CEM_DEFAULT;
+    sc.state = SCE_CEM_DEFAULT;
+    for (; sc.More(); sc.Forward()) {
+        if (sc.atLineStart) {
+            newLine = true;
+            if (sc.state == SCE_CEM_LOG)
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
             }
-            if ( cCurrChar == '"' ) {
-                styler.ColourTo(i-1, state );
-                state = SCE_CMAKE_STRINGDQ;
-                bVarInString = false;
-                bClassicVarInString = false;
-                break;
-            }
-            if ( cCurrChar == '\'' ) {
-                styler.ColourTo(i-1, state );
-                state = SCE_CMAKE_STRINGRQ;
-                bVarInString = false;
-                bClassicVarInString = false;
-                break;
-            }
-            if ( cCurrChar == '`' ) {
-                styler.ColourTo(i-1, state );
-                state = SCE_CMAKE_STRINGLQ;
-                bVarInString = false;
-                bClassicVarInString = false;
-                break;
-            }
-
-            // QsciLexerCem Variable
-            if ( cCurrChar == '$' || isCemChar(cCurrChar)) {
-                styler.ColourTo(i-1,state);
-                state = SCE_CMAKE_VARIABLE;
-
-                // If it is a number, we must check and set style here first...
-                if ( isCemNumber(cCurrChar) && (cNextChar == '\t' || cNextChar == ' ' || cNextChar == '\r' || cNextChar == '\n' ) )
-                    styler.ColourTo( i, SCE_CMAKE_NUMBER);
-
-                break;
-            }
-
-            break;
-        case SCE_CMAKE_COMMENT:
-            if ( cCurrChar == '\n' || cCurrChar == '\r' ) {
-                if ( styler.SafeGetCharAt(i-1) == '\\' ) {
-                    styler.ColourTo(i-2,state);
-                    styler.ColourTo(i-1,SCE_CMAKE_DEFAULT);
-                }
-                else {
-                    styler.ColourTo(i-1,state);
-                    state = SCE_CMAKE_DEFAULT;
-                }
-            }
-            break;
-        case SCE_CMAKE_STRINGDQ:
-        case SCE_CMAKE_STRINGLQ:
-        case SCE_CMAKE_STRINGRQ:
-
-            if ( styler.SafeGetCharAt(i-1) == '\\' && styler.SafeGetCharAt(i-2) == '$' )
-                break; // Ignore the next character, even if it is a quote of some sort
-
-            if ( cCurrChar == '"' && state == SCE_CMAKE_STRINGDQ ) {
-                styler.ColourTo(i,state);
-                state = SCE_CMAKE_DEFAULT;
-                break;
-            }
-
-            if ( cCurrChar == '`' && state == SCE_CMAKE_STRINGLQ ) {
-                styler.ColourTo(i,state);
-                state = SCE_CMAKE_DEFAULT;
-                break;
-            }
-
-            if ( cCurrChar == '\'' && state == SCE_CMAKE_STRINGRQ ) {
-                styler.ColourTo(i,state);
-                state = SCE_CMAKE_DEFAULT;
-                break;
-            }
-
-            if ( cNextChar == '\r' || cNextChar == '\n' ) {
-                Sci_Position nCurLine = styler.GetLine(i+1);
-                Sci_Position nBack = i;
-                // We need to check if the previous line has a \ in it...
-                bool bNextLine = false;
-
-                while ( nBack > 0 ) {
-                    if ( styler.GetLine(nBack) != nCurLine )
-                        break;
-
-                    char cTemp = styler.SafeGetCharAt(nBack, 'a'); // Letter 'a' is safe here
-
-                    if ( cTemp == '\\' ) {
-                        bNextLine = true;
-                        break;
-                    }
-                    if ( cTemp != '\r' && cTemp != '\n' && cTemp != '\t' && cTemp != ' ' )
-                        break;
-
-                    nBack--;
-                }
-
-                if ( bNextLine ) {
-                    styler.ColourTo(i+1,state);
-                }
-                if ( bNextLine == false ) {
-                    styler.ColourTo(i,state);
-                    state = SCE_CMAKE_DEFAULT;
-                }
-            }
-            break;
-
-        case SCE_CMAKE_VARIABLE:
-
-            // CMake Variable:
-            if ( cCurrChar == '$' )
-                state = SCE_CMAKE_DEFAULT;
-            else if ( cCurrChar == '\\' && (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' ) )
-                state = SCE_CMAKE_DEFAULT;
-            else if ( (isCemChar(cCurrChar) && !isCemChar( cNextChar) && cNextChar != '}') || cCurrChar == '}' ) {
-                state = classifyWordCem( styler.GetStartSegment(), i, keywordLists, styler );
-                styler.ColourTo( i, state);
-                state = SCE_CMAKE_DEFAULT;
-            }
-            else if ( !isCemChar( cCurrChar ) && cCurrChar != '{' && cCurrChar != '}' ) {
-                if ( classifyWordCem( styler.GetStartSegment(), i-1, keywordLists, styler) == SCE_CMAKE_NUMBER )
-                    styler.ColourTo( i-1, SCE_CMAKE_NUMBER );
-
-                state = SCE_CMAKE_DEFAULT;
-
-                if ( cCurrChar == '"' ) {
-                    state = SCE_CMAKE_STRINGDQ;
-                    bVarInString = false;
-                    bClassicVarInString = false;
-                }
-                else if ( cCurrChar == '`' ) {
-                    state = SCE_CMAKE_STRINGLQ;
-                    bVarInString = false;
-                    bClassicVarInString = false;
-                }
-                else if ( cCurrChar == '\'' ) {
-                    state = SCE_CMAKE_STRINGRQ;
-                    bVarInString = false;
-                    bClassicVarInString = false;
-                }
-                else if ( cCurrChar == '#' ) {
-                    state = SCE_CMAKE_COMMENT;
-                }
-            }
-            break;
         }
 
-        if ( state == SCE_CMAKE_STRINGDQ || state == SCE_CMAKE_STRINGLQ || state == SCE_CMAKE_STRINGRQ ) {
-            bool bIngoreNextDollarSign = false;
-
-            if ( bVarInString && cCurrChar == '$' ) {
-                bVarInString = false;
-                bIngoreNextDollarSign = true;
+        switch (sc.state) {
+        case SCE_CEM_DEFAULT:
+            if (isCemNumber(sc.ch) && newLine)
+            {
+                setCemState(sc, SCE_CEM_TIME, perviousState);
+                newLine = false;
+                continue;
             }
-            else if ( bVarInString && cCurrChar == '\\' && (cNextChar == 'n' || cNextChar == 'r' || cNextChar == 't' || cNextChar == '"' || cNextChar == '`' || cNextChar == '\'' ) ) {
-                styler.ColourTo( i+1, SCE_CMAKE_STRINGVAR);
-                bVarInString = false;
-                bIngoreNextDollarSign = false;
+            if (sc.chPrev == '-' && perviousState == SCE_CEM_TIME)
+            {
+                sc.Forward(2);
+                setCemState(sc, SCE_CEM_MODULENAME, perviousState);
+                continue;
             }
-
-            else if ( bVarInString && !isCemChar(cNextChar) ) {
-                int nWordState = classifyWordCem( styler.GetStartSegment(), i, keywordLists, styler);
-                if ( nWordState == SCE_CMAKE_VARIABLE )
-                    styler.ColourTo( i, SCE_CMAKE_STRINGVAR);
-                bVarInString = false;
+            if (sc.chPrev == ']' && perviousState == SCE_CEM_MODULENAME)
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_LOGLEVEL, perviousState);
+                continue;
             }
-            // Covers "${TEST}..."
-            else if ( bClassicVarInString && cNextChar == '}' ) {
-                styler.ColourTo( i+1, SCE_CMAKE_STRINGVAR);
-                bClassicVarInString = false;
+            if (sc.chPrev == ' ' && perviousState == SCE_CEM_LOGLEVEL)
+            {
+                sc.Forward(2);
+                setCemState(sc, SCE_CEM_THREADDATA, perviousState);
+                continue;
             }
-
-            // Start of var in string
-            if ( !bIngoreNextDollarSign && cCurrChar == '$' && cNextChar == '{' ) {
-                styler.ColourTo( i-1, state);
-                bClassicVarInString = true;
-                bVarInString = false;
+            if (sc.ch == ' ' && sc.chPrev == ']' && !newLine)
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_TIME, perviousState);
+                continue;
             }
-            else if ( !bIngoreNextDollarSign && cCurrChar == '$' ) {
-                styler.ColourTo( i-1, state);
-                bVarInString = true;
-                bClassicVarInString = false;
+            if (sc.chPrev == ':' && perviousState == SCE_CEM_FILENAME)
+            {
+                setCemState(sc, SCE_CEM_FILENAME_LINENUM, perviousState);
+                continue;
             }
+            if(sc.chPrev == ']' && perviousState == SCE_CEM_FILENAME_LINENUM)
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_LOG, perviousState);
+                continue;
+            }
+            break;
+        case SCE_CEM_TIME:
+            if (sc.ch == '-')
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
+            }
+            break;
+        case SCE_CEM_MODULENAME:
+            if (sc.ch == ']')
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
+            }
+            break;
+        case SCE_CEM_LOGLEVEL:
+            if (sc.ch == ' ')
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
+            }
+            break;
+        case SCE_CEM_THREADDATA:
+            if (sc.chNext == '}')
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_THREADID, perviousState);
+            }
+            break;
+        case SCE_CEM_THREADID:
+            if (sc.ch == ']')
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_FUNCTION, perviousState);
+            }
+            break;
+        case SCE_CEM_FUNCTION:
+            if (sc.ch == ' ')
+            {
+                sc.Forward();
+                setCemState(sc, SCE_CEM_FILENAME, perviousState);
+            }
+            break;
+        case SCE_CEM_FILENAME:
+            if (sc.chNext == ':')
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
+            }
+            break;
+        case SCE_CEM_FILENAME_LINENUM:
+            if (sc.ch == ']')
+            {
+                setCemState(sc, SCE_CEM_DEFAULT, perviousState);
+            }
+            break;
         }
     }
 
-    // Colourise remaining document
-    styler.ColourTo(nLengthDoc-1,state);
+    sc.Complete();
 }
 
 static void FoldQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)

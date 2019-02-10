@@ -34,47 +34,15 @@ class QsciLexerCem : public QsciLexerCustom
 
 public:
     enum {
-        //! The default.
-        Default = 0,
-
-        //! An error.
-        Error = 1,
-
-        //! A comment.
-        Comment = 2,
-
-        //! A number.
-        Number = 3,
-
-        //! A keyword.
-        Keyword = 4,
-
-        //! A double-quoted string.
-        DoubleQuotedString = 5,
-
-        //! A single-quoted string.
-        SingleQuotedString = 6,
-
-        //! An operator.
-        Operator = 7,
-
-        //! An identifier
-        Identifier = 8,
-
-        //! A scalar.
-        Scalar = 9,
-
-        //! Parameter expansion.
-        ParameterExpansion = 10,
-
-        //! Backticks.
-        Backticks = 11,
-
-        //! A here document delimiter.
-        HereDocumentDelimiter = 12,
-
-        //! A single quoted here document.
-        SingleQuotedHereDocument = 13
+        DEFAULT = 0,
+        TIME = 1,
+        MODULENAME = 2,
+        LOGLEVEL = 3,
+        THREADID = 4,
+        FUNCTION = 5,
+        FILENAME = 6,
+        FILENAME_LINENUM = 7,
+        LOG = 8,
     };
 
     QsciLexerCem(QObject *parent = nullptr);

@@ -234,7 +234,7 @@ SOURCES += \
     QScintilla/src/Style.cpp \
     QScintilla/src/UniConversion.cpp \
     QScintilla/src/ViewStyle.cpp \
-    QScintilla/src/XPM.cpp \
+    QScintilla/src/XPM.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -356,7 +356,7 @@ HEADERS += \
     QScintilla/src/UnicodeFromUTF8.h \
     QScintilla/src/UniConversion.h \
     QScintilla/src/ViewStyle.h \
-    QScintilla/src/XPM.h \
+    QScintilla/src/XPM.h
 
 FORMS += \
     mainwindow.ui \
