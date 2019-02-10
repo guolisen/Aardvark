@@ -1,5 +1,7 @@
 #include <QTabBar>
 #include <QFileDialog>
+#include <QListView>
+#include <QDockWidget>
 #include "mainwindow.h"
 #include "logdocwindow.h"
 #include "SettingPanel/settingpanel.h"
@@ -11,10 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QList<int> l;
-    l.push_back(20);
-    l.push_back(80);
-    ui->splitter->setSizes(l);
+    setCentralWidget(ui->mdiArea);
 
     Q_FOREACH (QTabBar* tab, ui->mdiArea->findChildren<QTabBar *>())
     {
@@ -39,6 +38,19 @@ MainWindow::MainWindow(QWidget *parent) :
             return;
     });
     confgiMenu->addAction(settingAct);
+
+    setDockNestingEnabled(true);
+    QDockWidget *dw = new QDockWidget;
+    dw->setWidget(new QListView);
+    //dw->setObjectName("dock1");
+    dw->setWindowTitle("dock2");
+    addDockWidget(Qt::LeftDockWidgetArea, dw);
+    QDockWidget *dw1 = new QDockWidget;
+    dw1->setWidget(new QListView);
+    //dw1->setObjectName("dock3");
+    dw1->setWindowTitle("dock4");
+    addDockWidget(Qt::LeftDockWidgetArea, dw1);
+    tabifyDockWidget(dw, dw1);
 }
 MainWindow::~MainWindow()
 {
@@ -75,7 +87,7 @@ bool MainWindow::loadFile(const QString &fileName)
     }
     else
         child->close();
-    //MainWindow::prependToRecentFiles(fileName);
+
     return succeeded;
 }
 
