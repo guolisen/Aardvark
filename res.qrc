@@ -1,15 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/SettingPanel/close.png</file>
-        <file>res/SettingPanel/close_hover.png</file>
-        <file>res/SettingPanel/close_pressed.png</file>
-        <file>res/SettingPanel/home.png</file>
-        <file>res/SettingPanel/min.png</file>
-        <file>res/SettingPanel/min_hover.png</file>
-        <file>res/SettingPanel/min_pressed.png</file>
-        <file>res/SettingPanel/setting.png</file>
-        <file>res/SettingPanel/status.png</file>
-        <file>res/SettingPanel/exampleText.txt</file>
+        <file>SettingPanel/exampleText.txt</file>
         <file>res/FindTB/around.bmp</file>
         <file>res/FindTB/around20.bmp</file>
         <file>res/FindTB/around24.bmp</file>
@@ -34,5 +25,15 @@
         <file>res/FindTB/word20.bmp</file>
         <file>res/FindTB/word24.bmp</file>
         <file>res/FindTB/word32.bmp</file>
+        <file>res/SettingPanel/close.png</file>
+        <file>res/SettingPanel/close_hover.png</file>
+        <file>res/SettingPanel/close_pressed.png</file>
+        <file>res/SettingPanel/home.png</file>
+        <file>res/SettingPanel/min.png</file>
+        <file>res/SettingPanel/min_hover.png</file>
+        <file>res/SettingPanel/min_pressed.png</file>
+        <file>res/SettingPanel/setting.png</file>
+        <file>res/SettingPanel/settingpanel.ts</file>
+        <file>res/SettingPanel/status.png</file>
     </qresource>
 </RCC>

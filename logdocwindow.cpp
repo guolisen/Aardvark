@@ -55,15 +55,21 @@ void LogDocWindow::createFindBar()
     QPushButton* markAll_ = new QPushButton(tr("Mark All"));
 
     QAction *wordAct = new QAction(QIcon(":/res/FindTB/word24"), tr("&Word"), this);
+    wordAct->setCheckable(true);
     QAction *caseAct = new QAction(QIcon(":/res/FindTB/case24"), tr("&Case"), this);
+    caseAct->setCheckable(true);
     QAction *regexAct = new QAction(QIcon(":/res/FindTB/regex24"), tr("&Regex"), this);
+    regexAct->setCheckable(true);
     QAction *backslashAct = new QAction(QIcon(":/res/FindTB/backslash24"), tr("&Backslash"), this);
+    backslashAct->setCheckable(true);
     QAction *aroundAct = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
+    aroundAct->setCheckable(true);
     QAction *upAct = new QAction(QIcon(":/res/FindTB/up24"), tr("&Up"), this);
+    upAct->setCheckable(true);
     //newAct->setShortcuts(QKeySequence::New);
     //newAct->setStatusTip(tr("Create a new file"));
     //connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
-    QAction *closeAct = new QAction(QIcon(":/SettingPanel/close_pressed"), tr("&Close"), this);
+    QAction *closeAct = new QAction(QIcon(":/res/SettingPanel/close_pressed"), tr("&Close"), this);
     fileToolBar->addAction(closeAct);
     fileToolBar->addWidget(nameLabel_);
     fileToolBar->addWidget(findEdit_);
