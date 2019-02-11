@@ -23,8 +23,13 @@ void TextEditorConfig::Config(QsciScintilla* textSci)
     textSci_->setMarginWidth(0,40);
     textSci_->setCaretLineVisible(true);
     textSci_->setCaretLineBackgroundColor(QColor(240, 240, 240));
-    textSci_->SendScintilla(QsciScintilla::SCI_SETCODEPAGE,QsciScintilla::SC_CP_UTF8);
+    textSci_->SendScintilla(QsciScintilla::SCI_SETCODEPAGE, QsciScintilla::SC_CP_UTF8);
     textSci_->setScrollWidth(20);
+
+    textSci_->setMarginType(1, QsciScintilla::SymbolMargin);
+    textSci_->setMarginMarkerMask(1, QsciScintilla::SC_MASK_FOLDERS);
+    textSci_->setMarginWidth(1,40);
+    textSci_->setFolding(QsciScintilla::BoxedFoldStyle);
 
     readSetting();
 }
@@ -34,7 +39,7 @@ void TextEditorConfig::readSetting()
     QSettings settings;
 
     const bool showLineNumber = settings.value("editor/showLineNumber", true).toBool();
-    textSci_->setMarginLineNumbers(0, showLineNumber);
+    textSci_->setMarginLineNumbers(0, true);
 
     const QString editorCharFont = settings.value("editor/editorCharFont", "").toString();
     QFont font;

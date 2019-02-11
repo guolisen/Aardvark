@@ -67,9 +67,10 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     textMain_  = new QsciScintilla(this);
     textLexer_ = new QsciLexerCem(this);
     textMain_->setLexer(textLexer_);
+    configer->Config(textMain_);
     setCentralWidget(textMain_);
 
-    configer->Config(textMain_);
+
 
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -82,7 +83,26 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
 
 void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers state)
 {
-    state.testFlag(Qt::ControlModifier);
+    if(!state.testFlag(Qt::ControlModifier))
+    {
+        return;
+    }
+
+    int totleLine = textMain_->lines();
+    //int level = 0;
+    for (int i=0; i< totleLine; ++i)
+    {
+        QString lineStr = textMain_->text(i);
+        if (!lineStr.contains("MAKE", Qt::CaseInsensitive))
+        {
+            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)1);
+        }
+        else
+        {
+
+            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)0&QsciScintillaBase::SC_FOLDLEVELHEADERFLAG);
+        }
+    }
 }
 
 LogDocWindow::~LogDocWindow()
@@ -271,11 +291,11 @@ void LogDocWindow::markAllClick()
         }
         if (isSetIndicator(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum))
         {
-            return;
+        //    return;
         }
 
         textMain_->fillIndicatorRange(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
-        addIndicator(findText, lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
+        //addIndicator(findText, lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
     }
     while(textMain_->findNext());
 }
