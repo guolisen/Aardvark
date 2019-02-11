@@ -96,6 +96,7 @@ private slots:
     void showPopMenu(const QPoint &point);
 
     void clearMarkClick();
+    void IndicatorClicked(int line, int index, Qt::KeyboardModifiers state);
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
     void createFindBar();

@@ -75,6 +75,14 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
 
     createFindBar();
     createPopMenu();
+
+    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)), this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
+
+}
+
+void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers state)
+{
+    state.testFlag(Qt::ControlModifier);
 }
 
 LogDocWindow::~LogDocWindow()
