@@ -1,4 +1,5 @@
 #include <QtWidgets>
+#include <QRandomGenerator>
 #include "logdocwindow.h"
 #include "ui_logdocwindow.h"
 #include <Qsci/qsciscintilla.h>
@@ -27,10 +28,10 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     textMain_  = new QsciScintilla(this);
     textLexer_ = new QsciLexerCem(this);
     textMain_->setLexer(textLexer_);
+    setCentralWidget(textMain_);
 
     configer->Config(textMain_);
 
-    setCentralWidget(textMain_);
     setAttribute(Qt::WA_DeleteOnClose);
 
     createFindBar();
@@ -43,45 +44,227 @@ LogDocWindow::~LogDocWindow()
     delete textLexer_;
 }
 
+void LogDocWindow::findNextClick()
+{
+    QString findText = findEdit_->text();
+    if (findText.isEmpty())
+        return;
+    findStr(findText);
+}
+
+bool LogDocWindow::findStr(const QString& targetStr)
+{
+    //wordAct_->isChecked();
+    //caseAct_->isChecked();
+    //regexAct_->isChecked();
+    //backslashAct_->isChecked();
+    //aroundAct_->isChecked();
+    //upAct_->isChecked();
+    return textMain_->findFirst(targetStr, regexAct_->isChecked(), caseAct_->isChecked(), wordAct_->isChecked(), aroundAct_->isChecked());
+}
+
+void LogDocWindow::clearIndicator(int indicator)
+{
+    //indicatorMap_[indicator].clear();
+    //indicatorKeyWordMap_[keyWord] = indicatorNumber;
+    //TODO: range
+    textMain_->clearIndicatorRange(0, textMain_->length(), 0, 0, indicator);
+}
+
+bool LogDocWindow::isSetIndicator(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
+{
+    QList<IndicatorEntry> list = getIndicatorList(lineFrom, indexFrom,
+                                                  lineTo, indexTo, indicatorNumber);
+    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
+    Q_FOREACH(IndicatorEntry indicator, list)
+    {
+        if(indicator == key)
+            return true;
+    }
+
+    return false;
+}
+
+QList<IndicatorEntry> LogDocWindow::getIndicatorList(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
+{
+    IndicatorMap::iterator iter = indicatorMap_.find(indicatorNumber);
+    if (iter == indicatorMap_.end())
+        return QList<IndicatorEntry>();
+    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
+
+    return indicatorMap_[indicatorNumber];
+}
+
+bool LogDocWindow::isSetIndicatorFirst(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
+{
+    QList<IndicatorEntry> list = getIndicatorList(lineFrom, indexFrom,
+                                                  lineTo, indexTo, indicatorNumber);
+    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
+    if(list.isEmpty())
+        return false;
+    if(list[0] == key)
+        return true;
+
+    return false;
+}
+
+struct CompareIndicator
+{
+bool operator()(IndicatorEntry& left, IndicatorEntry& right)
+{
+    if (left > right)
+    {
+        return true;
+    }
+    return false;
+}
+};
+void LogDocWindow::addIndicator(const QString& keyWord, int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
+{
+    if (isSetIndicator(lineFrom, indexFrom, lineTo, indexTo, indicatorNumber))
+        return;
+    IndicatorEntry indicator(lineFrom, indexFrom, lineTo, indexTo);
+    indicatorMap_[indicatorNumber].push_back(indicator);
+    //QList<IndicatorEntry>& list = indicatorMap_[indicatorNumber];
+    qSort(indicatorMap_[indicatorNumber].begin(), indicatorMap_[indicatorNumber].end(), CompareIndicator());
+}
+
+void LogDocWindow::setWrapComplete(const QString& keyWord)
+{
+    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.find(keyWord);
+    if (iter == indicatorKeyWordMap_.end())
+        return;
+    iter->isWrap = true;
+}
+
+KeyWordEntry LogDocWindow::createIndicatorNum(const QString& keyWord)
+{
+    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.find(keyWord);
+    if (iter != indicatorKeyWordMap_.end())
+        return indicatorKeyWordMap_[keyWord];
+
+    KeyWordEntry entry;
+    entry.indicatorNum = textMain_->indicatorDefine(QsciScintilla::FullBoxIndicator);
+    entry.keyWordColor = getRandomColor(LIGHTLEVEL, 200);
+    indicatorKeyWordMap_[keyWord] = entry;
+
+    return entry;
+}
+
+
+QColor LogDocWindow::getRandomColor(COLORLEVEL colorLevel, int alpha)
+{
+#if 1
+    switch(colorLevel)
+    {
+        case DARKLEVEL:
+            return QColor(QRandomGenerator::global()->bounded(0, 100),
+                          QRandomGenerator::global()->bounded(0, 100),
+                          QRandomGenerator::global()->bounded(0, 100), alpha);
+        case MIDLEVEL:
+            return QColor(QRandomGenerator::global()->bounded(100, 150),
+                          QRandomGenerator::global()->bounded(100, 150),
+                          QRandomGenerator::global()->bounded(100, 150), alpha);
+        case LIGHTLEVEL:
+            return QColor(QRandomGenerator::global()->bounded(150, 200),
+                          QRandomGenerator::global()->bounded(150, 200),
+                          QRandomGenerator::global()->bounded(150, 200), alpha);
+    }
+#endif
+#if 0
+     QStringList colorNames = QColor::colorNames();
+
+     int index = QRandomGenerator::global()->bounded(0, colorNames.size());
+
+     QColor color(colorNames[index]);
+    color.setAlpha(alpha);
+
+    return color;
+#endif
+    return QColor(200,200,200,alpha);
+}
+void LogDocWindow::markAllClick()
+{
+    QString findText = findEdit_->text();
+    if (findText.isEmpty())
+        return;
+
+    if (!findStr(findText))
+        return;
+
+    KeyWordEntry indicator = createIndicatorNum(findText);
+    if (indicator.isWrap)
+        return;
+    textMain_->setIndicatorForegroundColor(indicator.keyWordColor, indicator.indicatorNum);
+    textMain_->setIndicatorDrawUnder(true, indicator.indicatorNum);
+    do
+    {
+        int lineFrom = -1;
+        int indexFrom = -1;
+        int lineTo = -1;
+        int indexTo = -1;
+
+        textMain_->getSelection(&lineFrom, &indexFrom, &lineTo, &indexTo);
+        if (aroundAct_->isChecked())
+        {
+            if (isSetIndicatorFirst(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum))
+            {
+                setWrapComplete(findText);
+                return;
+            }
+        }
+        if (isSetIndicator(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum))
+        {
+            return;
+        }
+
+        textMain_->fillIndicatorRange(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
+        addIndicator(findText, lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
+    }
+    while(textMain_->findNext());
+}
+
 void LogDocWindow::createFindBar()
 {
-    QToolBar *fileToolBar = new QToolBar(this);
-    addToolBar(Qt::BottomToolBarArea, fileToolBar);
-    QLabel* nameLabel_ = new QLabel(tr("Find:"));
-    QLineEdit* findEdit_ = new QLineEdit;
+    fileToolBar_ = new QToolBar(this);
+    addToolBar(Qt::BottomToolBarArea, fileToolBar_);
+    nameLabel_ = new QLabel(tr("Find:"));
+    findEdit_ = new QLineEdit;
     findEdit_->setGeometry(0,0,500,35);
     findEdit_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    QPushButton* findNext_ = new QPushButton(tr("Find Next"));
-    QPushButton* markAll_ = new QPushButton(tr("Mark All"));
+    findNext_ = new QPushButton(tr("Find Next"));
+    findNext_->setStatusTip(tr("Find Next"));
+    connect(findNext_, SIGNAL(clicked()), this, SLOT(findNextClick()));
 
-    QAction *wordAct = new QAction(QIcon(":/res/FindTB/word24"), tr("&Word"), this);
-    wordAct->setCheckable(true);
-    QAction *caseAct = new QAction(QIcon(":/res/FindTB/case24"), tr("&Case"), this);
-    caseAct->setCheckable(true);
-    QAction *regexAct = new QAction(QIcon(":/res/FindTB/regex24"), tr("&Regex"), this);
-    regexAct->setCheckable(true);
-    QAction *backslashAct = new QAction(QIcon(":/res/FindTB/backslash24"), tr("&Backslash"), this);
-    backslashAct->setCheckable(true);
-    QAction *aroundAct = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
-    aroundAct->setCheckable(true);
-    QAction *upAct = new QAction(QIcon(":/res/FindTB/up24"), tr("&Up"), this);
-    upAct->setCheckable(true);
-    //newAct->setShortcuts(QKeySequence::New);
-    //newAct->setStatusTip(tr("Create a new file"));
-    //connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
-    QAction *closeAct = new QAction(QIcon(":/res/SettingPanel/close_pressed"), tr("&Close"), this);
-    fileToolBar->addAction(closeAct);
-    fileToolBar->addWidget(nameLabel_);
-    fileToolBar->addWidget(findEdit_);
-    fileToolBar->addSeparator();
-    fileToolBar->addWidget(findNext_);
-    fileToolBar->addWidget(markAll_);
-    fileToolBar->addAction(wordAct);
-    fileToolBar->addAction(caseAct);
-    fileToolBar->addAction(regexAct);
-    fileToolBar->addAction(backslashAct);
-    fileToolBar->addAction(aroundAct);
-    fileToolBar->addAction(upAct);
+    markAll_ = new QPushButton(tr("Mark All"));
+    connect(markAll_, SIGNAL(clicked()), this, SLOT(markAllClick()));
+
+    wordAct_ = new QAction(QIcon(":/res/FindTB/word24"), tr("&Word"), this);
+    wordAct_->setCheckable(true);
+    caseAct_ = new QAction(QIcon(":/res/FindTB/case24"), tr("&Case"), this);
+    caseAct_->setCheckable(true);
+    regexAct_ = new QAction(QIcon(":/res/FindTB/regex24"), tr("&Regex"), this);
+    regexAct_->setCheckable(true);
+    backslashAct_ = new QAction(QIcon(":/res/FindTB/backslash24"), tr("&Backslash"), this);
+    backslashAct_->setCheckable(true);
+    aroundAct_ = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
+    aroundAct_->setCheckable(true);
+    upAct_ = new QAction(QIcon(":/res/FindTB/up24"), tr("&Up"), this);
+    upAct_->setCheckable(true);
+    closeAct_ = new QAction(QIcon(":/res/SettingPanel/close_pressed"), tr("&Close"), this);
+
+    fileToolBar_->addAction(closeAct_);
+    fileToolBar_->addWidget(nameLabel_);
+    fileToolBar_->addWidget(findEdit_);
+    fileToolBar_->addSeparator();
+    fileToolBar_->addWidget(findNext_);
+    fileToolBar_->addWidget(markAll_);
+    fileToolBar_->addAction(wordAct_);
+    fileToolBar_->addAction(caseAct_);
+    fileToolBar_->addAction(regexAct_);
+    fileToolBar_->addAction(backslashAct_);
+    fileToolBar_->addAction(aroundAct_);
+    fileToolBar_->addAction(upAct_);
 }
 
 bool LogDocWindow::loadFile(const QString &fileName)
