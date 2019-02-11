@@ -93,12 +93,14 @@ public:
 private slots:
     void findNextClick();
     void markAllClick();
+    void showPopMenu(const QPoint &point);
 
+    void clearMarkClick();
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
     void createFindBar();
     bool findStr(const QString &targetStr);
-    void clearIndicator(int indicator);
+    void clearIndicator(const QString& keyWord, int indicator);
 
     bool isSetIndicatorFirst(int lineFrom, int indexFrom,
                         int lineTo, int indexTo, int indicatorNumber);
@@ -111,6 +113,7 @@ private:
                                           int lineTo, int indexTo, int indicatorNumber);
     QColor getRandomColor(COLORLEVEL colorLevel, int alpha);
     void setWrapComplete(const QString &keyWord);
+
 private:
     Ui::LogDocWindow *ui;
     QsciScintilla *textMain_;
@@ -133,6 +136,9 @@ private:
     IndicatorMap indicatorMap_;
     IndicatorKeyWordMap indicatorKeyWordMap_;
 
+    QMenu* rightPopMenu_;
+
+    void createPopMenu();
 };
 
 #endif // LOGDOCWINDOW_H

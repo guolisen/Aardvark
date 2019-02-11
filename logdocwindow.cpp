@@ -1,10 +1,49 @@
 #include <QtWidgets>
+#include <QDebug>
 #include <QRandomGenerator>
 #include "logdocwindow.h"
 #include "ui_logdocwindow.h"
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexercmake.h>
 #include <Qsci/qscilexercem.h>
+
+void LogDocWindow::clearMarkClick()
+{
+    int line = -1;
+    int index = -1;
+    textMain_->getCursorPosition(&line, &index);
+    QString posWord = textMain_->wordAtLineIndex(line, index);
+    qDebug() << posWord;
+
+    int indicator = -1;
+    QString keyStr = "";
+    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.begin();
+    for(; iter != indicatorKeyWordMap_.end(); ++iter)
+    {
+        keyStr = iter.key();
+        if (posWord.contains(keyStr, Qt::CaseInsensitive))
+        {
+            qDebug() << "Indicator: " << iter->indicatorNum;
+            indicator = iter->indicatorNum;
+            break;
+        }
+    }
+    if (indicator < 0)
+        return;
+    clearIndicator(keyStr, indicator);
+}
+void LogDocWindow::createPopMenu()
+{
+    rightPopMenu_ = new QMenu(this);
+    rightPopMenu_->addAction(tr("&Copy"), textMain_, SLOT(copy()));
+    rightPopMenu_->addAction(tr("Clear Mark"), this, SLOT(clearMarkClick()));
+    rightPopMenu_->addSeparator();
+    rightPopMenu_->addAction(tr("Select All"), textMain_, SLOT(selectAll()));
+
+    connect(textMain_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPopMenu(const QPoint&)));
+
+    textMain_->setContextMenuPolicy(Qt::CustomContextMenu);
+}
 
 LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     QMainWindow(parent),
@@ -35,6 +74,7 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     createFindBar();
+    createPopMenu();
 }
 
 LogDocWindow::~LogDocWindow()
@@ -63,12 +103,16 @@ bool LogDocWindow::findStr(const QString& targetStr)
     return textMain_->findFirst(targetStr, regexAct_->isChecked(), caseAct_->isChecked(), wordAct_->isChecked(), aroundAct_->isChecked());
 }
 
-void LogDocWindow::clearIndicator(int indicator)
+void LogDocWindow::clearIndicator(const QString& keyWord, int indicator)
 {
-    //indicatorMap_[indicator].clear();
-    //indicatorKeyWordMap_[keyWord] = indicatorNumber;
+    indicatorMap_[indicator].clear();
+    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.find(keyWord);
+    indicatorKeyWordMap_.erase(iter);
     //TODO: range
-    textMain_->clearIndicatorRange(0, textMain_->length(), 0, 0, indicator);
+    int line = -1;
+    int index = -1;
+    textMain_->lineIndexFromPosition(textMain_->length(), &line, &index);
+    textMain_->clearIndicatorRange(0, 0, line, index, indicator);
 }
 
 bool LogDocWindow::isSetIndicator(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
@@ -151,6 +195,10 @@ KeyWordEntry LogDocWindow::createIndicatorNum(const QString& keyWord)
     return entry;
 }
 
+void LogDocWindow::showPopMenu(const QPoint &point)
+{
+    rightPopMenu_->exec(mapToGlobal(point));
+}
 
 QColor LogDocWindow::getRandomColor(COLORLEVEL colorLevel, int alpha)
 {
