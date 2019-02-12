@@ -70,8 +70,6 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     configer->Config(textMain_);
     setCentralWidget(textMain_);
 
-
-
     setAttribute(Qt::WA_DeleteOnClose);
 
     createFindBar();
@@ -89,20 +87,46 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
     }
 
     int totleLine = textMain_->lines();
-    //int level = 0;
+    bool tokenTag = false;
     for (int i=0; i< totleLine; ++i)
     {
+        int lev = textMain_->SendScintilla(QsciScintillaBase::SCI_GETFOLDLEVEL, (long)i);
         QString lineStr = textMain_->text(i);
-        if (!lineStr.contains("MAKE", Qt::CaseInsensitive))
+
+        if (lineStr.contains("MAKE", Qt::CaseInsensitive))
         {
-            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)1);
+            tokenTag = true;
+            int levelNext = QsciScintillaBase::SC_FOLDLEVELBASE;
+
+            QString nextLineStr = textMain_->text(i + 1);
+            if (!nextLineStr.contains("MAKE", Qt::CaseInsensitive))
+                ++levelNext;
+            lev |= levelNext << 16;
+            lev |= QsciScintillaBase::SC_FOLDLEVELHEADERFLAG;
+            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)lev);
+            //textMain_->SendScintilla(QsciScintillaBase::SCI_HIDELINES, (long)i, (long)i);
         }
         else
         {
+            int levelCurrent = 0x4000400;
+            if (tokenTag)
+                levelCurrent = 0x4010401;
 
-            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)0&QsciScintillaBase::SC_FOLDLEVELHEADERFLAG);
+            QString nextLineStr = textMain_->text(i + 1);
+            if (nextLineStr.contains("MAKE", Qt::CaseInsensitive))
+            {
+                int levelNext = 0x400 << 16;
+                levelCurrent &= 0x0000FFFF;
+                levelCurrent += levelNext;
+            }
+
+            textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)levelCurrent);
+            //textMain_->SendScintilla(QsciScintillaBase::SCI_SHOWLINES, (long)i, (long)i);
         }
+
+
     }
+
 }
 
 LogDocWindow::~LogDocWindow()

@@ -2,7 +2,7 @@
 #define TEXTEDITORCONFIG_H
 #include <memory>
 class QsciScintilla;
-class QsciLexerCMake;
+class QsciLexerCem;
 class ITextEditorConfig
 {
 public:
@@ -22,7 +22,7 @@ public:
 
 private:
     QsciScintilla* textSci_;
-    QsciLexerCMake* concreteLexer_;
+    QsciLexerCem* concreteLexer_;
 };
 
 #endif // TEXTEDITORCONFIG_H

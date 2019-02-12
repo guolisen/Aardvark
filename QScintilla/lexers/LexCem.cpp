@@ -74,8 +74,8 @@ static bool CemNextLineHasElse(Sci_PositionU start, Sci_PositionU end, Accessor 
 static int calculateFoldCem(Sci_PositionU start, Sci_PositionU end, int foldlevel, Accessor &styler, bool bElse)
 {
     // If the word is too long, it is not what we are looking for
-    if ( end - start > 20 )
-        return foldlevel;
+    //if ( end - start > 20 )
+    //    return foldlevel;
 
     int newFoldlevel = foldlevel;
 
@@ -288,6 +288,7 @@ static void ColouriseQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length
 
 static void FoldQsciLexerCemDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler)
 {
+    return;
     // No folding enabled, no reason to continue...
     if ( styler.GetPropertyInt("fold") == 0 )
         return;

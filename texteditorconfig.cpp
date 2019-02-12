@@ -1,7 +1,7 @@
 #include "texteditorconfig.h"
 #include <QSettings>
 #include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexercmake.h>
+#include <Qsci/qscilexercem.h>
 
 TextEditorConfig::TextEditorConfig()
 {
@@ -15,7 +15,7 @@ void TextEditorConfig::Config(QsciScintilla* textSci)
 
     textSci_ = textSci;
     QsciLexer* lexer = textSci_->lexer();
-    concreteLexer_ = dynamic_cast<QsciLexerCMake*>(lexer);
+    concreteLexer_ = dynamic_cast<QsciLexerCem*>(lexer);
     if (!concreteLexer_)
         return;
 
@@ -28,8 +28,7 @@ void TextEditorConfig::Config(QsciScintilla* textSci)
 
     textSci_->setMarginType(1, QsciScintilla::SymbolMargin);
     textSci_->setMarginMarkerMask(1, QsciScintilla::SC_MASK_FOLDERS);
-    textSci_->setMarginWidth(1,40);
-    textSci_->setFolding(QsciScintilla::BoxedFoldStyle);
+    textSci_->setFolding(QsciScintilla::BoxedTreeFoldStyle, 1);
 
     readSetting();
 }
@@ -39,7 +38,7 @@ void TextEditorConfig::readSetting()
     QSettings settings;
 
     const bool showLineNumber = settings.value("editor/showLineNumber", true).toBool();
-    textSci_->setMarginLineNumbers(0, true);
+    textSci_->setMarginLineNumbers(0, showLineNumber);
 
     const QString editorCharFont = settings.value("editor/editorCharFont", "").toString();
     QFont font;
