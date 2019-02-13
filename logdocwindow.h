@@ -15,7 +15,7 @@ class QsciLexerCem;
 class QLabel;
 class QLineEdit;
 class QPushButton;
-
+class QMdiArea;
 struct IndicatorEntry
 {
     int lineFrom;
@@ -44,19 +44,6 @@ struct IndicatorEntry
         if(indexTo != r.indexTo)
             return false;
     }
-
-    int getLineAddr(const IndicatorEntry& entry)
-    {
-        return entry.lineFrom * 100 + entry.indexFrom;
-    }
-    bool operator>(const IndicatorEntry& r)
-    {
-        return getLineAddr(*this) > getLineAddr(r);
-    }
-    bool operator<(const IndicatorEntry& r)
-    {
-        return getLineAddr(*this) < getLineAddr(r);
-    }
 };
 
 struct KeyWordEntry
@@ -68,8 +55,7 @@ struct KeyWordEntry
     KeyWordEntry():isWrap(false), indicatorNum(-1), keyWordColor(200,200,200) {}
 };
 
-typedef QList<IndicatorEntry> IndicatorList;
-typedef QMap<int, IndicatorList> IndicatorMap;
+typedef QMap<int, IndicatorEntry> IndicatorMap;
 typedef QMap<QString, KeyWordEntry> IndicatorKeyWordMap;
 
 enum COLORLEVEL
@@ -84,11 +70,13 @@ class LogDocWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    LogDocWindow(TextEditorConfigPtr configer, QWidget *parent = nullptr);
+    LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent = nullptr);
 
     ~LogDocWindow();
     bool loadFile(const QString &fileName);
-    QString currentFile() { return curFile_; }
+    QString currentFile() const { return curFile_; }
+    QsciScintilla* getSci() const { return textMain_; }
+    void setNewContent(QString);
 
 private slots:
     void findNextClick();
@@ -97,21 +85,18 @@ private slots:
 
     void clearMarkClick();
     void IndicatorClicked(int line, int index, Qt::KeyboardModifiers state);
+    void newWinTest();
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
     void createFindBar();
-    bool findStr(const QString &targetStr);
+    bool findStr(const QString &targetStr, int indicatorNum);
     void clearIndicator(const QString& keyWord, int indicator);
 
-    bool isSetIndicatorFirst(int lineFrom, int indexFrom,
-                        int lineTo, int indexTo, int indicatorNumber);
-    void addIndicator(const QString& keyWord, int lineFrom, int indexFrom,
+    void addIndicator(int lineFrom, int indexFrom,
                       int lineTo, int indexTo, int indicatorNumber);
     KeyWordEntry createIndicatorNum(const QString &keyWord);
     bool isSetIndicator(int lineFrom, int indexFrom, int lineTo,
                         int indexTo, int indicatorNumber);
-    QList<IndicatorEntry> getIndicatorList(int lineFrom, int indexFrom,
-                                          int lineTo, int indexTo, int indicatorNumber);
     QColor getRandomColor(COLORLEVEL colorLevel, int alpha);
     void setWrapComplete(const QString &keyWord);
 
@@ -133,6 +118,7 @@ private:
     QAction *aroundAct_;
     QAction *upAct_;
     QAction *closeAct_;
+    QMdiArea* mdi_;
 
     IndicatorMap indicatorMap_;
     IndicatorKeyWordMap indicatorKeyWordMap_;

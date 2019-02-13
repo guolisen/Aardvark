@@ -29,6 +29,7 @@ void TextEditorConfig::Config(QsciScintilla* textSci)
     textSci_->setMarginType(1, QsciScintilla::SymbolMargin);
     textSci_->setMarginMarkerMask(1, QsciScintilla::SC_MASK_FOLDERS);
     textSci_->setFolding(QsciScintilla::BoxedTreeFoldStyle, 1);
+    textSci_->setScrollWidthTracking(true);
 
     readSetting();
 }

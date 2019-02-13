@@ -14,12 +14,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setCentralWidget(ui->mdiArea);
-
+    ui->mdiArea->setDocumentMode(true);
     Q_FOREACH (QTabBar* tab, ui->mdiArea->findChildren<QTabBar *>())
     {
         tab->setDrawBase(false);
         tab->setExpanding(false);
     }
+
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QAction *newAct = new QAction(tr("&Open"), this);
@@ -107,7 +108,7 @@ QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 LogDocWindow *MainWindow::createMdiChild()
 {
     TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
-    LogDocWindow *child = new LogDocWindow(configer);
+    LogDocWindow *child = new LogDocWindow(ui->mdiArea, configer);
     ui->mdiArea->addSubWindow(child);
 
 #ifndef QT_NO_CLIPBOARD

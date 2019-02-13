@@ -781,7 +781,7 @@ public:
     //!
     //! \sa findFirstInSelection(), findNext(), replace()
     virtual bool findFirst(const QString &expr, bool re, bool cs, bool wo,
-            bool wrap, bool forward = true, int line = -1, int index = -1,
+            bool wrap, int indicatorNum = -1, bool forward = true, int line = -1, int index = -1,
             bool show = true, bool posix = false);
 
     //! Find the first occurrence of the string \a expr in the current
@@ -2232,6 +2232,8 @@ private:
         long startpos, startpos_orig;
         long endpos, endpos_orig;
         bool show;
+        bool mark;
+        int indicatorNum;
     };
 
     FindState findState;

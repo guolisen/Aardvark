@@ -1,5 +1,6 @@
 #include <QtWidgets>
 #include <QDebug>
+#include <QMdiArea>
 #include <QRandomGenerator>
 #include "logdocwindow.h"
 #include "ui_logdocwindow.h"
@@ -45,13 +46,14 @@ void LogDocWindow::createPopMenu()
     textMain_->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
+LogDocWindow::LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::LogDocWindow),
-    curFile_("")
+    curFile_(""),
+    mdi_(mdi)
 {
     ui->setupUi(this);
-
+    setAttribute(Qt::WA_DeleteOnClose);
     setStyleSheet("QCheckBox{font-family:arial;font-size:13px;border-radius:2px;color:#000000;}"
                   "QCheckBox::indicator:checked{color:#FF0000}"
                   "QLabel,QRadioButton{background:transparent;color:#000000;font-family:arial;font-size:15px;}"
@@ -75,8 +77,8 @@ LogDocWindow::LogDocWindow(TextEditorConfigPtr configer, QWidget *parent) :
     createFindBar();
     createPopMenu();
 
-    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)), this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
-
+    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
+            this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
 }
 
 void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers state)
@@ -93,13 +95,13 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
         int lev = textMain_->SendScintilla(QsciScintillaBase::SCI_GETFOLDLEVEL, (long)i);
         QString lineStr = textMain_->text(i);
 
-        if (lineStr.contains("MAKE", Qt::CaseInsensitive))
+        if (lineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
         {
             tokenTag = true;
             int levelNext = QsciScintillaBase::SC_FOLDLEVELBASE;
 
             QString nextLineStr = textMain_->text(i + 1);
-            if (!nextLineStr.contains("MAKE", Qt::CaseInsensitive))
+            if (!nextLineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
                 ++levelNext;
             lev |= levelNext << 16;
             lev |= QsciScintillaBase::SC_FOLDLEVELHEADERFLAG;
@@ -108,12 +110,12 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
         }
         else
         {
-            int levelCurrent = 0x4000400;
+            int levelCurrent = (QsciScintillaBase::SC_FOLDLEVELBASE << 16) + QsciScintillaBase::SC_FOLDLEVELBASE; //0x4000400
             if (tokenTag)
                 levelCurrent = 0x4010401;
 
             QString nextLineStr = textMain_->text(i + 1);
-            if (nextLineStr.contains("MAKE", Qt::CaseInsensitive))
+            if (nextLineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
             {
                 int levelNext = 0x400 << 16;
                 levelCurrent &= 0x0000FFFF;
@@ -141,26 +143,22 @@ void LogDocWindow::findNextClick()
     QString findText = findEdit_->text();
     if (findText.isEmpty())
         return;
-    findStr(findText);
+    findStr(findText, -1);
 }
 
-bool LogDocWindow::findStr(const QString& targetStr)
+bool LogDocWindow::findStr(const QString& targetStr, int indicatorNum)
 {
-    //wordAct_->isChecked();
-    //caseAct_->isChecked();
-    //regexAct_->isChecked();
-    //backslashAct_->isChecked();
-    //aroundAct_->isChecked();
-    //upAct_->isChecked();
-    return textMain_->findFirst(targetStr, regexAct_->isChecked(), caseAct_->isChecked(), wordAct_->isChecked(), aroundAct_->isChecked());
+    return textMain_->findFirst(targetStr, regexAct_->isChecked(),
+                                caseAct_->isChecked(), wordAct_->isChecked(), true, indicatorNum);
 }
 
 void LogDocWindow::clearIndicator(const QString& keyWord, int indicator)
 {
-    indicatorMap_[indicator].clear();
+    IndicatorMap::iterator indIter = indicatorMap_.find(indicator);
+    indicatorMap_.erase(indIter);
     IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.find(keyWord);
     indicatorKeyWordMap_.erase(iter);
-    //TODO: range
+
     int line = -1;
     int index = -1;
     textMain_->lineIndexFromPosition(textMain_->length(), &line, &index);
@@ -169,60 +167,23 @@ void LogDocWindow::clearIndicator(const QString& keyWord, int indicator)
 
 bool LogDocWindow::isSetIndicator(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
 {
-    QList<IndicatorEntry> list = getIndicatorList(lineFrom, indexFrom,
-                                                  lineTo, indexTo, indicatorNumber);
-    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
-    Q_FOREACH(IndicatorEntry indicator, list)
-    {
-        if(indicator == key)
-            return true;
-    }
-
-    return false;
-}
-
-QList<IndicatorEntry> LogDocWindow::getIndicatorList(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
-{
     IndicatorMap::iterator iter = indicatorMap_.find(indicatorNumber);
     if (iter == indicatorMap_.end())
-        return QList<IndicatorEntry>();
-    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
-
-    return indicatorMap_[indicatorNumber];
-}
-
-bool LogDocWindow::isSetIndicatorFirst(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
-{
-    QList<IndicatorEntry> list = getIndicatorList(lineFrom, indexFrom,
-                                                  lineTo, indexTo, indicatorNumber);
-    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
-    if(list.isEmpty())
         return false;
-    if(list[0] == key)
+
+    IndicatorEntry key(lineFrom, indexFrom, lineTo, indexTo);
+    if(iter.value() == key)
         return true;
 
     return false;
 }
 
-struct CompareIndicator
-{
-bool operator()(IndicatorEntry& left, IndicatorEntry& right)
-{
-    if (left > right)
-    {
-        return true;
-    }
-    return false;
-}
-};
-void LogDocWindow::addIndicator(const QString& keyWord, int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
+void LogDocWindow::addIndicator(int lineFrom, int indexFrom, int lineTo, int indexTo, int indicatorNumber)
 {
     if (isSetIndicator(lineFrom, indexFrom, lineTo, indexTo, indicatorNumber))
         return;
     IndicatorEntry indicator(lineFrom, indexFrom, lineTo, indexTo);
-    indicatorMap_[indicatorNumber].push_back(indicator);
-    //QList<IndicatorEntry>& list = indicatorMap_[indicatorNumber];
-    qSort(indicatorMap_[indicatorNumber].begin(), indicatorMap_[indicatorNumber].end(), CompareIndicator());
+    indicatorMap_[indicatorNumber] = indicator;
 }
 
 void LogDocWindow::setWrapComplete(const QString& keyWord)
@@ -235,12 +196,16 @@ void LogDocWindow::setWrapComplete(const QString& keyWord)
 
 KeyWordEntry LogDocWindow::createIndicatorNum(const QString& keyWord)
 {
-    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.find(keyWord);
-    if (iter != indicatorKeyWordMap_.end())
-        return indicatorKeyWordMap_[keyWord];
+    IndicatorKeyWordMap::iterator iter = indicatorKeyWordMap_.begin();
+    for(; iter != indicatorKeyWordMap_.end(); ++iter)
+    {
+        if (keyWord.contains(iter.key(), Qt::CaseInsensitive) ||
+                iter.key().contains(keyWord, Qt::CaseInsensitive))
+            return iter.value();
+    }
 
     KeyWordEntry entry;
-    entry.indicatorNum = textMain_->indicatorDefine(QsciScintilla::FullBoxIndicator);
+    entry.indicatorNum = textMain_->indicatorDefine(QsciScintilla::RoundBoxIndicator);
     entry.keyWordColor = getRandomColor(LIGHTLEVEL, 200);
     indicatorKeyWordMap_[keyWord] = entry;
 
@@ -289,39 +254,63 @@ void LogDocWindow::markAllClick()
     if (findText.isEmpty())
         return;
 
-    if (!findStr(findText))
-        return;
-
     KeyWordEntry indicator = createIndicatorNum(findText);
     if (indicator.isWrap)
         return;
-    textMain_->setIndicatorForegroundColor(indicator.keyWordColor, indicator.indicatorNum);
-    textMain_->setIndicatorDrawUnder(true, indicator.indicatorNum);
-    do
-    {
-        int lineFrom = -1;
-        int indexFrom = -1;
-        int lineTo = -1;
-        int indexTo = -1;
 
+    //textMain_->setIndicatorForegroundColor(indicator.keyWordColor, indicator.indicatorNum);
+    textMain_->setIndicatorDrawUnder(true, indicator.indicatorNum);
+    //textMain_->setIndicatorOutlineColor(indicator.keyWordColor, indicator.indicatorNum);
+
+    if (!findStr(findText, indicator.indicatorNum))
+        return;
+
+    int lineFrom = -1;
+    int indexFrom = -1;
+    int lineTo = -1;
+    int indexTo = -1;
+    textMain_->getSelection(&lineFrom, &indexFrom, &lineTo, &indexTo);
+    addIndicator(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
+
+    while(textMain_->findNext())
+    {
         textMain_->getSelection(&lineFrom, &indexFrom, &lineTo, &indexTo);
-        if (aroundAct_->isChecked())
-        {
-            if (isSetIndicatorFirst(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum))
-            {
-                setWrapComplete(findText);
-                return;
-            }
-        }
         if (isSetIndicator(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum))
         {
-        //    return;
+            setWrapComplete(findText);
+            return;
         }
-
-        textMain_->fillIndicatorRange(lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
-        //addIndicator(findText, lineFrom, indexFrom, lineTo, indexTo, indicator.indicatorNum);
     }
-    while(textMain_->findNext());
+}
+
+void LogDocWindow::newWinTest()
+{
+    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    LogDocWindow *child = new LogDocWindow(mdi_, configer);
+    mdi_->addSubWindow(child);
+
+    child->getSci()->setDocument(textMain_->document());
+
+
+    Q_FOREACH (QTabBar* tab, mdi_->findChildren<QTabBar *>())
+    {
+        //tab->setDrawBase(false);
+        tab->setExpanding(false);
+        //curFile_
+
+        int index = tab->currentIndex() + 1;
+        tab->setTabText(index, "ffff");
+        tab->setAutoFillBackground(true);
+        tab->setTabTextColor(index, QColor(160, 0, 160));
+
+        QObjectList objs= tab->children();
+
+    }
+        qDebug() << "TTT newWinTest";
+
+    child->setNewContent(findEdit_->text());
+    child->setWindowTitle(findEdit_->text());
+    child->show();
 }
 
 void LogDocWindow::createFindBar()
@@ -348,7 +337,9 @@ void LogDocWindow::createFindBar()
     backslashAct_ = new QAction(QIcon(":/res/FindTB/backslash24"), tr("&Backslash"), this);
     backslashAct_->setCheckable(true);
     aroundAct_ = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
-    aroundAct_->setCheckable(true);
+    //aroundAct_->setCheckable(true);
+    connect(aroundAct_, SIGNAL(triggered()), this, SLOT(newWinTest()));
+
     upAct_ = new QAction(QIcon(":/res/FindTB/up24"), tr("&Up"), this);
     upAct_->setCheckable(true);
     closeAct_ = new QAction(QIcon(":/res/SettingPanel/close_pressed"), tr("&Close"), this);
@@ -386,4 +377,21 @@ bool LogDocWindow::loadFile(const QString &fileName)
     setCurrentFile(fileName);
 
     return true;
+}
+
+void LogDocWindow::setNewContent(QString tag)
+{
+    int totleLine = textMain_->lines();
+    for (int i=0; i< totleLine; ++i)
+    {
+        QString lineStr = textMain_->text(i);
+        if (lineStr.contains(tag, Qt::CaseInsensitive))
+        {
+            textMain_->SendScintilla(QsciScintillaBase::SCI_SHOWLINES, (long)i, (long)i);
+        }
+        else
+        {
+            textMain_->SendScintilla(QsciScintillaBase::SCI_HIDELINES, (long)i, (long)i);
+        }
+    }
 }

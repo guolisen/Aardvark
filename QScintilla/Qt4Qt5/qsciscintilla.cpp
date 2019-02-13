@@ -1712,7 +1712,7 @@ void QsciScintilla::zoomTo(int size)
 
 // Find the first occurrence of a string.
 bool QsciScintilla::findFirst(const QString &expr, bool re, bool cs, bool wo,
-        bool wrap, bool forward, int line, int index, bool show, bool posix)
+        bool wrap, int indicatorNum, bool forward, int line, int index, bool show, bool posix)
 {
     if (expr.isEmpty())
     {
@@ -1724,6 +1724,7 @@ bool QsciScintilla::findFirst(const QString &expr, bool re, bool cs, bool wo,
     findState.expr = expr;
     findState.wrap = wrap;
     findState.forward = forward;
+    findState.indicatorNum = indicatorNum;
 
     findState.flags =
         (cs ? SCFIND_MATCHCASE : 0) |
@@ -1834,11 +1835,13 @@ bool QsciScintilla::doFind()
     }
 
     // It was found.
-    long targstart = SendScintilla(SCI_GETTARGETSTART);
+    //long targstart = SendScintilla(SCI_GETTARGETSTART);
+    long targstart = pos;
     long targend = SendScintilla(SCI_GETTARGETEND);
 
     // Ensure the text found is visible if required.
-    if (findState.show)
+    //if (findState.show)
+    if (false)
     {
         int startLine = SendScintilla(SCI_LINEFROMPOSITION, targstart);
         int endLine = SendScintilla(SCI_LINEFROMPOSITION, targend);
@@ -1849,7 +1852,11 @@ bool QsciScintilla::doFind()
 
     // Now set the selection.
     SendScintilla(SCI_SETSEL, targstart, targend);
-
+    if (findState.indicatorNum >= 0)
+    {
+        SendScintilla(SCI_SETINDICATORCURRENT, findState.indicatorNum);
+        SendScintilla(SCI_INDICATORFILLRANGE, targstart, targend - targstart);
+    }
     // Finally adjust the start position so that we don't find the same one
     // again.
     if (findState.forward)
