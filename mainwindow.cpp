@@ -6,7 +6,7 @@
 #include "logdocwindow.h"
 #include "SettingPanel/settingpanel.h"
 #include "ui_mainwindow.h"
-#include "texteditorconfig.h"
+#include <Core/configmgr.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
         tab->setExpanding(false);
         tab->setAutoFillBackground(true);
     }
-
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QAction *newAct = new QAction(tr("&Open"), this);
@@ -109,7 +108,7 @@ QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 
 LogDocWindow *MainWindow::createMdiChild()
 {
-    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    ConfigMgrPtr configer = std::make_shared<ConfigMgr>();
     LogDocWindow *child = new LogDocWindow(ui->mdiArea, configer);
     ui->mdiArea->addSubWindow(child);
 

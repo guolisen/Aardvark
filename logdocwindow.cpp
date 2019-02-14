@@ -5,15 +5,15 @@
 #include "logdocwindow.h"
 #include "ui_logdocwindow.h"
 #include <Qsci/qsciscintilla.h>
-#include <Qsci/qscilexercmake.h>
+#include <Qsci/qscilexercem.h>
 #include <Qsci/qscilexercem.h>
 
-
-LogDocWindow::LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent) :
+LogDocWindow::LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::LogDocWindow),
     curFile_(""),
-    mdi_(mdi)
+    mdi_(mdi),
+    config_(configer)
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -29,25 +29,23 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget 
                   "QPushButton:hover {background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);}"
                   "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
 
-    textMain_  = new QsciScintilla(this);
-    textLexer_ = new QsciLexerCem(this);
-    textMain_->setLexer(textLexer_);
-    configer->Config(textMain_);
-    setCentralWidget(textMain_);
+    textMain_  = config_->createSciObject(this);
+    textLexer_ = dynamic_cast<QsciLexerCem*>(textMain_->lexer());
+
+    setCentralWidget(textMain_.get());
 
     setAttribute(Qt::WA_DeleteOnClose);
 
     createFindBar();
     createPopMenu();
 
-    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
+    connect(textMain_.get(), SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
             this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
 }
 
 LogDocWindow::~LogDocWindow()
 {
     delete ui;
-    delete textMain_;
     delete textLexer_;
 }
 
@@ -79,12 +77,12 @@ void LogDocWindow::clearMarkClick()
 void LogDocWindow::createPopMenu()
 {
     rightPopMenu_ = new QMenu(this);
-    rightPopMenu_->addAction(tr("&Copy"), textMain_, SLOT(copy()));
+    rightPopMenu_->addAction(tr("&Copy"), textMain_.get(), SLOT(copy()));
     rightPopMenu_->addAction(tr("Clear Mark"), this, SLOT(clearMarkClick()));
     rightPopMenu_->addSeparator();
-    rightPopMenu_->addAction(tr("Select All"), textMain_, SLOT(selectAll()));
+    rightPopMenu_->addAction(tr("Select All"), textMain_.get(), SLOT(selectAll()));
 
-    connect(textMain_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPopMenu(const QPoint&)));
+    connect(textMain_.get(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPopMenu(const QPoint&)));
 
     textMain_->setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -286,7 +284,7 @@ void LogDocWindow::markAllClick()
 
 void LogDocWindow::newWinTest()
 {
-    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    ConfigMgrPtr configer = std::make_shared<ConfigMgr>();
     LogDocWindow *child = new LogDocWindow(mdi_, configer, this);
     mdi_->addSubWindow(child);
 

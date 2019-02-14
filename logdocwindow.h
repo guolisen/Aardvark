@@ -4,7 +4,7 @@
 #include <QList>
 #include <QMap>
 #include <QMainWindow>
-#include "texteditorconfig.h"
+#include <Core/configmgr.h>
 
 namespace Ui {
 class LogDocWindow;
@@ -70,12 +70,12 @@ class LogDocWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent = nullptr);
+    LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent = nullptr);
 
     ~LogDocWindow();
     bool loadFile(const QString &fileName);
     QString currentFile() const { return curFile_; }
-    QsciScintilla* getSci() const { return textMain_; }
+    QsciScintillaPtr getSci() const { return textMain_; }
     void setNewContent(QString);
 
 private slots:
@@ -99,10 +99,11 @@ private:
                         int indexTo, int indicatorNumber);
     QColor getRandomColor(COLORLEVEL colorLevel, int alpha);
     void setWrapComplete(const QString &keyWord);
+    void createPopMenu();
 
 private:
     Ui::LogDocWindow *ui;
-    QsciScintilla *textMain_;
+    QsciScintillaPtr textMain_;
     QsciLexerCem* textLexer_;
     QString curFile_;
 
@@ -124,8 +125,7 @@ private:
     IndicatorKeyWordMap indicatorKeyWordMap_;
 
     QMenu* rightPopMenu_;
-
-    void createPopMenu();
+    ConfigMgrPtr config_;
 };
 
 #endif // LOGDOCWINDOW_H
