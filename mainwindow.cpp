@@ -7,10 +7,12 @@
 #include "SettingPanel/settingpanel.h"
 #include "ui_mainwindow.h"
 #include <Core/configmgr.h>
+#include <SettingPanel/settingpanel.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    settingPanel_(new SettingPanel(this))
 {
     ui->setupUi(this);
     setCentralWidget(ui->mdiArea);
@@ -35,8 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     settingAct->setShortcuts(QKeySequence::Preferences);
     settingAct->setStatusTip(tr("Open Preferences"));
     connect(settingAct, &QAction::triggered, this, [this](){
-        SettingPanel w(this);
-        if (w.exec() != QDialog::Accepted)
+        if (settingPanel_->exec() != QDialog::Accepted)
             return;
     });
     confgiMenu->addAction(settingAct);
@@ -44,12 +45,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setDockNestingEnabled(true);
     QDockWidget *dw = new QDockWidget;
     dw->setWidget(new QListView);
-    //dw->setObjectName("dock1");
     dw->setWindowTitle("dock2");
     addDockWidget(Qt::LeftDockWidgetArea, dw);
     QDockWidget *dw1 = new QDockWidget;
     dw1->setWidget(new QListView);
-    //dw1->setObjectName("dock3");
     dw1->setWindowTitle("dock4");
     addDockWidget(Qt::LeftDockWidgetArea, dw1);
     tabifyDockWidget(dw, dw1);

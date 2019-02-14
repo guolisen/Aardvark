@@ -31,9 +31,7 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent
 
     textMain_  = config_->createSciObject(this);
     textLexer_ = dynamic_cast<QsciLexerCem*>(textMain_->lexer());
-
     setCentralWidget(textMain_.get());
-
     setAttribute(Qt::WA_DeleteOnClose);
 
     createFindBar();

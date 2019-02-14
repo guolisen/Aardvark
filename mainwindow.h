@@ -8,6 +8,7 @@ namespace Ui {
 class MainWindow;
 }
 class LogDocWindow;
+class SettingPanel;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -15,8 +16,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void open();
 
+private slots:
+    void open();
 private:
     bool openFile(const QString &fileName);
     bool loadFile(const QString &fileName);
@@ -24,6 +26,7 @@ private:
     LogDocWindow* createMdiChild();
 
     Ui::MainWindow *ui;
+    SettingPanel* settingPanel_;
 };
 
 #endif // MAINWINDOW_H

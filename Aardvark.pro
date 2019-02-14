@@ -31,7 +31,6 @@ SOURCES += \
     SettingPanel/epushbutton.cpp \
     SettingPanel/settingpanel.cpp \
     SettingPanel/fontform.cpp \
-    texteditorconfig.cpp \
     QScintilla/lexers/LexA68k.cpp \
     QScintilla/lexers/LexAbaqus.cpp \
     QScintilla/lexers/LexAda.cpp \
@@ -243,7 +242,6 @@ HEADERS += \
     SettingPanel/epushbutton.h \
     SettingPanel/settingpanel.h \
     SettingPanel/fontform.h \
-    texteditorconfig.h \
     QScintilla/include/ILexer.h \
     QScintilla/include/Platform.h \
     QScintilla/include/Sci_Position.h \
