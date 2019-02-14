@@ -2,19 +2,19 @@
 #define FONTFORM_H
 
 #include <QWidget>
-#include "texteditorconfig.h"
+#include <Core/configmgr.h>
 
 namespace Ui {
 class FontForm;
 }
 class QsciScintilla;
-class QsciLexerCMake;
+class QsciLexerCem;
 class FontForm : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FontForm(TextEditorConfigPtr configer, QWidget *parent = nullptr);
+    explicit FontForm(ConfigMgrPtr configer, QWidget *parent = nullptr);
     ~FontForm();
 
 private slots:
@@ -29,9 +29,9 @@ private:
     void readSetting();
 
     Ui::FontForm *ui;
-    QsciScintilla* textPrevious_;
-    QsciLexerCMake* textLexerCMake_;
-    TextEditorConfigPtr configer_;
+    QsciScintillaPtr textPrevious_;
+    QsciLexerCem* textLexerCem_;
+    ConfigMgrPtr configer_;
 };
 
 #endif // FONTFORM_H

@@ -8,6 +8,49 @@
 #include <Qsci/qscilexercmake.h>
 #include <Qsci/qscilexercem.h>
 
+
+LogDocWindow::LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::LogDocWindow),
+    curFile_(""),
+    mdi_(mdi)
+{
+    ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose);
+    setStyleSheet("QCheckBox{font-family:arial;font-size:13px;border-radius:2px;color:#000000;}"
+                  "QCheckBox::indicator:checked{color:#FF0000}"
+                  "QLabel,QRadioButton{background:transparent;color:#000000;font-family:arial;font-size:15px;}"
+                  "QComboBox{background:transparent;border:1px solid #d7d7d7; border-radius: 3px; padding: 1px 3px 1px 3px;}"
+                  "QComboBox:editable{background:transparent;}"
+                  "QComboBox::down-arrow:on {top: 1px;left: 1px;}"
+                  "QGroupBox{font-family:arial;font-size:13px;color:#000000;}"
+                  "QFontComboBox{background:white;border:1px solid #d7d7d7; border-radius: 3px; padding: 1px 3px 1px 3px;}"
+                  "QPushButton{color: #f0f0f0;border: 1px solid #bbbbbb;font: 8pt \"Arial\";border-radius: 6px;padding: 5px;background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);min-width: 80px;}"
+                  "QPushButton:hover {background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);}"
+                  "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
+
+    textMain_  = new QsciScintilla(this);
+    textLexer_ = new QsciLexerCem(this);
+    textMain_->setLexer(textLexer_);
+    configer->Config(textMain_);
+    setCentralWidget(textMain_);
+
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    createFindBar();
+    createPopMenu();
+
+    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
+            this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
+}
+
+LogDocWindow::~LogDocWindow()
+{
+    delete ui;
+    delete textMain_;
+    delete textLexer_;
+}
+
 void LogDocWindow::clearMarkClick()
 {
     int line = -1;
@@ -44,41 +87,6 @@ void LogDocWindow::createPopMenu()
     connect(textMain_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPopMenu(const QPoint&)));
 
     textMain_->setContextMenuPolicy(Qt::CustomContextMenu);
-}
-
-LogDocWindow::LogDocWindow(QMdiArea* mdi, TextEditorConfigPtr configer, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::LogDocWindow),
-    curFile_(""),
-    mdi_(mdi)
-{
-    ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose);
-    setStyleSheet("QCheckBox{font-family:arial;font-size:13px;border-radius:2px;color:#000000;}"
-                  "QCheckBox::indicator:checked{color:#FF0000}"
-                  "QLabel,QRadioButton{background:transparent;color:#000000;font-family:arial;font-size:15px;}"
-                  "QComboBox{background:transparent;border:1px solid #d7d7d7; border-radius: 3px; padding: 1px 3px 1px 3px;}"
-                  "QComboBox:editable{background:transparent;}"
-                  "QComboBox::down-arrow:on {top: 1px;left: 1px;}"
-                  "QGroupBox{font-family:arial;font-size:13px;color:#000000;}"
-                  "QFontComboBox{background:white;border:1px solid #d7d7d7; border-radius: 3px; padding: 1px 3px 1px 3px;}"
-                  "QPushButton{color: #f0f0f0;border: 1px solid #bbbbbb;font: 8pt \"Arial\";border-radius: 6px;padding: 5px;background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);min-width: 80px;}"
-                  "QPushButton:hover {background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);}"
-                  "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
-
-    textMain_  = new QsciScintilla(this);
-    textLexer_ = new QsciLexerCem(this);
-    textMain_->setLexer(textLexer_);
-    configer->Config(textMain_);
-    setCentralWidget(textMain_);
-
-    setAttribute(Qt::WA_DeleteOnClose);
-
-    createFindBar();
-    createPopMenu();
-
-    connect(textMain_, SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
-            this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
 }
 
 void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers state)
@@ -129,13 +137,6 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
 
     }
 
-}
-
-LogDocWindow::~LogDocWindow()
-{
-    delete ui;
-    delete textMain_;
-    delete textLexer_;
 }
 
 void LogDocWindow::findNextClick()
@@ -286,27 +287,16 @@ void LogDocWindow::markAllClick()
 void LogDocWindow::newWinTest()
 {
     TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
-    LogDocWindow *child = new LogDocWindow(mdi_, configer);
+    LogDocWindow *child = new LogDocWindow(mdi_, configer, this);
     mdi_->addSubWindow(child);
 
     child->getSci()->setDocument(textMain_->document());
 
-
     Q_FOREACH (QTabBar* tab, mdi_->findChildren<QTabBar *>())
     {
-        //tab->setDrawBase(false);
-        tab->setExpanding(false);
-        //curFile_
-
         int index = tab->currentIndex() + 1;
-        tab->setTabText(index, "ffff");
-        tab->setAutoFillBackground(true);
         tab->setTabTextColor(index, QColor(160, 0, 160));
-
-        QObjectList objs= tab->children();
-
     }
-        qDebug() << "TTT newWinTest";
 
     child->setNewContent(findEdit_->text());
     child->setWindowTitle(findEdit_->text());

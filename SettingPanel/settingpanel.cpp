@@ -6,11 +6,11 @@
 #include <Qsci/qsciscintilla.h>
 
 SettingPanel::SettingPanel(QWidget *parent)
-    : QDialog(parent, Qt::FramelessWindowHint)
-    , mousePress(false)
-    , signFlag(false)
-    , generalWidget(nullptr),
-      fontWidget(nullptr)
+    : QDialog(parent, Qt::FramelessWindowHint),
+      mousePress(false),
+      generalWidget(nullptr),
+      fontWidget(nullptr),
+      signFlag(false)
 
 {
     resize(900, 700);
@@ -156,7 +156,7 @@ void SettingPanel::initTabOneWidget()
 }
 void SettingPanel::initTabTwoWidget()
 {
-    TextEditorConfigPtr configer = std::make_shared<TextEditorConfig>();
+    ConfigMgrPtr configer = std::make_shared<ConfigMgr>(this);
     fontWidget = new FontForm(configer, widgetScrollArea);
     fontWidget->show();
     fontWidget->setGeometry(0, 0, 820, 800);
@@ -207,7 +207,7 @@ void SettingPanel::slotItemClicked(QListWidgetItem *item)
     }
 }
 
-void SettingPanel::slotValueChanged(int value)
+void SettingPanel::slotValueChanged(int)
 {
     if (tabWidget->currentIndex() == 0) {
         QListWidgetItem *generalItem = contentsWidget->item(0);

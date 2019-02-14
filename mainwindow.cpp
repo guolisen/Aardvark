@@ -15,10 +15,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setCentralWidget(ui->mdiArea);
     ui->mdiArea->setDocumentMode(true);
+
     Q_FOREACH (QTabBar* tab, ui->mdiArea->findChildren<QTabBar *>())
     {
         tab->setDrawBase(false);
         tab->setExpanding(false);
+        tab->setAutoFillBackground(true);
     }
 
 
