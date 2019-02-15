@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <Core/configmgr.h>
+#include <Core/appcontext.h>
 
 namespace Ui {
 class FontForm;
@@ -14,7 +15,7 @@ class FontForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit FontForm(core::ConfigMgrPtr configer, QWidget *parent = nullptr);
+    FontForm(core::ContextPtr context, QWidget *parent = nullptr);
     ~FontForm();
 
 private slots:
@@ -31,6 +32,7 @@ private:
     Ui::FontForm *ui;
     QsciScintillaPtr textPrevious_;
     QsciLexerCem* textLexerCem_;
+    core::ContextPtr context_;
     core::ConfigMgrPtr configer_;
 };
 

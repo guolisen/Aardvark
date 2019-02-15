@@ -5,13 +5,13 @@
 #include "fontform.h"
 #include <Qsci/qsciscintilla.h>
 
-SettingPanel::SettingPanel(QWidget *parent)
+SettingPanel::SettingPanel(core::ContextPtr context, QWidget *parent)
     : QDialog(parent, Qt::FramelessWindowHint),
       mousePress(false),
       generalWidget(nullptr),
       fontWidget(nullptr),
-      signFlag(false)
-
+      signFlag(false),
+      context_(context)
 {
     resize(900, 700);
 
@@ -89,7 +89,15 @@ SettingPanel::SettingPanel(QWidget *parent)
 
 SettingPanel::~SettingPanel()
 {
-
+    DELETE_OBJECT(minButton);
+    DELETE_OBJECT(closeButton);
+    DELETE_OBJECT(tabWidget);
+    DELETE_OBJECT(contentsWidget);
+    DELETE_OBJECT(widgetScrollArea);
+    DELETE_OBJECT(scrollArea);
+    DELETE_OBJECT(generalWidget);
+    DELETE_OBJECT(fontWidget);
+    DELETE_OBJECT(animation_);
 }
 
 void SettingPanel::resizeEvent(QResizeEvent *event)
@@ -157,7 +165,7 @@ void SettingPanel::initTabOneWidget()
 void SettingPanel::initTabTwoWidget()
 {
     core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>(this);
-    fontWidget = new FontForm(configer, widgetScrollArea);
+    fontWidget = new FontForm(context_, widgetScrollArea);
     fontWidget->show();
     fontWidget->setGeometry(0, 0, 820, 800);
     widgetScrollArea->resize(1020, 800);

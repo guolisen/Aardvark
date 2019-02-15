@@ -13,7 +13,7 @@ MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     context_(context),
     ui(new Ui::MainWindow),
-    settingPanel_(new SettingPanel(this))
+    settingPanel_(new SettingPanel(context, this))
 {
     ui->setupUi(this);
     setCentralWidget(ui->mdiArea);
@@ -108,8 +108,7 @@ QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 
 LogDocWindow *MainWindow::createMdiChild()
 {
-    core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>();
-    LogDocWindow *child = new LogDocWindow(ui->mdiArea, configer);
+    LogDocWindow *child = new LogDocWindow(ui->mdiArea, context_);
     ui->mdiArea->addSubWindow(child);
 
 #ifndef QT_NO_CLIPBOARD

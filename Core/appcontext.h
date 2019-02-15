@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <QObject>
-
+#include <Core/commondefine.h>
 namespace core
 {
 

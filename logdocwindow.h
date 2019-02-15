@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QMainWindow>
 #include <Core/configmgr.h>
+#include <Core/appcontext.h>
 
 namespace Ui {
 class LogDocWindow;
@@ -70,7 +71,7 @@ class LogDocWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    LogDocWindow(QMdiArea* mdi, core::ConfigMgrPtr configer, QWidget *parent = nullptr);
+    LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *parent = nullptr);
 
     ~LogDocWindow();
     bool loadFile(const QString &fileName);
@@ -125,6 +126,7 @@ private:
     IndicatorKeyWordMap indicatorKeyWordMap_;
 
     QMenu* rightPopMenu_;
+    core::ContextPtr context_;
     core::ConfigMgrPtr config_;
 };
 

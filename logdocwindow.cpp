@@ -8,12 +8,13 @@
 #include <Qsci/qscilexercem.h>
 #include <Qsci/qscilexercem.h>
 
-LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ConfigMgrPtr configer, QWidget *parent) :
+LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::LogDocWindow),
     curFile_(""),
     mdi_(mdi),
-    config_(configer)
+    context_(context),
+    config_(context->getComponent<core::IConfigMgr>(nullptr))
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -39,12 +40,6 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ConfigMgrPtr configer, QWidget *
 
     connect(textMain_.get(), SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
             this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
-
-
-    qDebug() << "iiiii: " << config_->metaObject()->className();
-    qDebug() << "fffff: " << core::ConfigMgr::staticMetaObject.className();
-    auto obj = std::static_pointer_cast<QObject>(config_);
-    qDebug() << "ggggg: " << obj->metaObject()->className();
 }
 
 LogDocWindow::~LogDocWindow()
@@ -135,10 +130,7 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
             textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)i, (long)levelCurrent);
             //textMain_->SendScintilla(QsciScintillaBase::SCI_SHOWLINES, (long)i, (long)i);
         }
-
-
     }
-
 }
 
 void LogDocWindow::findNextClick()
@@ -288,8 +280,7 @@ void LogDocWindow::markAllClick()
 
 void LogDocWindow::newWinTest()
 {
-    core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>();
-    LogDocWindow *child = new LogDocWindow(mdi_, configer, this);
+    LogDocWindow *child = new LogDocWindow(mdi_, context_, this);
     mdi_->addSubWindow(child);
 
     child->getSci()->setDocument(textMain_->document());

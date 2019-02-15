@@ -358,6 +358,7 @@ HEADERS += \
     QScintilla/src/ViewStyle.h \
     QScintilla/src/XPM.h \
     Core/configmgr.h \
+    Core/commondefine.h \
     Core/appcontext.h
 
 FORMS += \

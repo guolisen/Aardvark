@@ -10,13 +10,14 @@
 #include <QRadioButton>
 #include <QComboBox>
 #include "epushbutton.h"
+#include <Core/appcontext.h>
 
 class SettingPanel : public QDialog
 {
     Q_OBJECT
 
 public:
-    SettingPanel(QWidget *parent = 0);
+    SettingPanel(core::ContextPtr context, QWidget *parent = nullptr);
     ~SettingPanel();
 
 protected:
@@ -38,8 +39,8 @@ private slots:
 private:
     QPoint movePoint;
     bool mousePress;
-    EPushButton *minButton;
-    EPushButton *closeButton;
+    EPushButton* minButton;
+    EPushButton* closeButton;
     QRect rectMove;
     QTabWidget *tabWidget;
     QListWidget *contentsWidget;
@@ -49,6 +50,7 @@ private:
     QWidget *fontWidget;
     bool signFlag;
     QPropertyAnimation* animation_;
+    core::ContextPtr context_;
 };
 
 #endif // SETTINGPANEL_H
