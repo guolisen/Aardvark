@@ -7,7 +7,7 @@
 #include "SettingPanel/settingpanel.h"
 #include "ui_mainwindow.h"
 #include <Core/configmgr.h>
-#include <SettingPanel/settingpanel.h>
+#include <View/SettingPanel/settingpanel.h>
 
 MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),

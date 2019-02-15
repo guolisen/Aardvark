@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>SettingPanel/exampleText.txt</file>
+        <file>View/SettingPanel/exampleText.txt</file>
         <file>res/FindTB/around.bmp</file>
         <file>res/FindTB/around20.bmp</file>
         <file>res/FindTB/around24.bmp</file>

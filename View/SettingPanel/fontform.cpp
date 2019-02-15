@@ -42,7 +42,7 @@ void FontForm::createPanel()
     textPrevious_->setGeometry(10, 260, 700, 320);
     textLexerCem_ = dynamic_cast<QsciLexerCem*>(textPrevious_->lexer());
 
-    QFile file(":/SettingPanel/exampleText.txt");
+    QFile file(":/View/SettingPanel/exampleText.txt");
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
         QTextStream in(&file);
