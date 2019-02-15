@@ -9,8 +9,9 @@
 #include <Core/configmgr.h>
 #include <SettingPanel/settingpanel.h>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
+    context_(context),
     ui(new Ui::MainWindow),
     settingPanel_(new SettingPanel(this))
 {
@@ -107,7 +108,7 @@ QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 
 LogDocWindow *MainWindow::createMdiChild()
 {
-    ConfigMgrPtr configer = std::make_shared<ConfigMgr>();
+    core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>();
     LogDocWindow *child = new LogDocWindow(ui->mdiArea, configer);
     ui->mdiArea->addSubWindow(child);
 

@@ -2,13 +2,17 @@
 #include <QSci/qsciscintilla.h>
 #include <QSci/qscilexercem.h>
 
+namespace core {
+
 const int MarginLineNum = 0;
 const int MarginFold = 1;
 const int MarginMark = 2;
 
 //ConfigMgr::ConfigMgr(QObject *parent):
     //settings_("./Config.ini", QSettings::IniFormat)
-ConfigMgr::ConfigMgr(QObject *parent)
+
+ConfigMgr::ConfigMgr(QObject *parent):
+    IConfigMgr(parent)
 {
 
 }
@@ -81,3 +85,4 @@ QVariant ConfigMgr::getProperty(const QString &key, const QVariant &defaultValue
     return settings_.value(key, defaultValue);
 }
 
+}

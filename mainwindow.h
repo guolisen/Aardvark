@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMdiSubWindow>
+#include <Core/appcontext.h>
 
 namespace Ui {
 class MainWindow;
@@ -14,7 +15,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(core::ContextPtr context, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -25,6 +26,7 @@ private:
     QMdiSubWindow *findMdiChild(const QString &fileName) const;
     LogDocWindow* createMdiChild();
 
+    core::ContextPtr context_;
     Ui::MainWindow *ui;
     SettingPanel* settingPanel_;
 };

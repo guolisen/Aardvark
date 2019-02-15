@@ -7,7 +7,7 @@
 #include <Qsci/qscilexercem.h>
 #include <QDebug>
 
-FontForm::FontForm(ConfigMgrPtr configer, QWidget *parent) :
+FontForm::FontForm(core::ConfigMgrPtr configer, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::FontForm),
     configer_(configer)

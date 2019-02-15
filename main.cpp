@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <Core/appcontext.h>
+#include <Core/configmgr.h>
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +11,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("FILETEAM");
     QCoreApplication::setApplicationName("AARDVARK");
 
-    MainWindow w;
+    core::ConfigMgrPtr configMgrPtr = std::make_shared<core::ConfigMgr>();
+    core::ContextPtr context = std::make_shared<core::AppContext>();
+    context->addComponent(configMgrPtr);
+
+    MainWindow w(context);
     w.showMaximized();
 
     return a.exec();

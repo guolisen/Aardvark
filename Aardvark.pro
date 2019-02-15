@@ -234,7 +234,8 @@ SOURCES += \
     QScintilla/src/UniConversion.cpp \
     QScintilla/src/ViewStyle.cpp \
     QScintilla/src/XPM.cpp \
-    Core/configmgr.cpp
+    Core/configmgr.cpp \
+    Core/appcontext.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -356,7 +357,8 @@ HEADERS += \
     QScintilla/src/UniConversion.h \
     QScintilla/src/ViewStyle.h \
     QScintilla/src/XPM.h \
-    Core/configmgr.h
+    Core/configmgr.h \
+    Core/appcontext.h
 
 FORMS += \
     mainwindow.ui \

@@ -14,7 +14,7 @@ class FontForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit FontForm(ConfigMgrPtr configer, QWidget *parent = nullptr);
+    explicit FontForm(core::ConfigMgrPtr configer, QWidget *parent = nullptr);
     ~FontForm();
 
 private slots:
@@ -31,7 +31,7 @@ private:
     Ui::FontForm *ui;
     QsciScintillaPtr textPrevious_;
     QsciLexerCem* textLexerCem_;
-    ConfigMgrPtr configer_;
+    core::ConfigMgrPtr configer_;
 };
 
 #endif // FONTFORM_H

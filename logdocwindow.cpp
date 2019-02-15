@@ -8,7 +8,7 @@
 #include <Qsci/qscilexercem.h>
 #include <Qsci/qscilexercem.h>
 
-LogDocWindow::LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent) :
+LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ConfigMgrPtr configer, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::LogDocWindow),
     curFile_(""),
@@ -39,6 +39,12 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent
 
     connect(textMain_.get(), SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
             this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
+
+
+    qDebug() << "iiiii: " << config_->metaObject()->className();
+    qDebug() << "fffff: " << core::ConfigMgr::staticMetaObject.className();
+    auto obj = std::static_pointer_cast<QObject>(config_);
+    qDebug() << "ggggg: " << obj->metaObject()->className();
 }
 
 LogDocWindow::~LogDocWindow()
@@ -282,7 +288,7 @@ void LogDocWindow::markAllClick()
 
 void LogDocWindow::newWinTest()
 {
-    ConfigMgrPtr configer = std::make_shared<ConfigMgr>();
+    core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>();
     LogDocWindow *child = new LogDocWindow(mdi_, configer, this);
     mdi_->addSubWindow(child);
 

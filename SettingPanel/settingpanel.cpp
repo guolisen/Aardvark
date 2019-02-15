@@ -156,7 +156,7 @@ void SettingPanel::initTabOneWidget()
 }
 void SettingPanel::initTabTwoWidget()
 {
-    ConfigMgrPtr configer = std::make_shared<ConfigMgr>(this);
+    core::ConfigMgrPtr configer = std::make_shared<core::ConfigMgr>(this);
     fontWidget = new FontForm(configer, widgetScrollArea);
     fontWidget->show();
     fontWidget->setGeometry(0, 0, 820, 800);

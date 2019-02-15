@@ -70,7 +70,7 @@ class LogDocWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    LogDocWindow(QMdiArea* mdi, ConfigMgrPtr configer, QWidget *parent = nullptr);
+    LogDocWindow(QMdiArea* mdi, core::ConfigMgrPtr configer, QWidget *parent = nullptr);
 
     ~LogDocWindow();
     bool loadFile(const QString &fileName);
@@ -125,7 +125,7 @@ private:
     IndicatorKeyWordMap indicatorKeyWordMap_;
 
     QMenu* rightPopMenu_;
-    ConfigMgrPtr config_;
+    core::ConfigMgrPtr config_;
 };
 
 #endif // LOGDOCWINDOW_H

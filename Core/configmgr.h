@@ -11,10 +11,15 @@ class QsciScintilla;
 
 typedef std::shared_ptr<QsciScintilla> QsciScintillaPtr;
 
-class IConfigMgr
+namespace core
 {
+
+class IConfigMgr: public QObject
+{
+    Q_OBJECT
 public:
-    virtual ~IConfigMgr(){}
+    IConfigMgr(QObject *parent = nullptr):QObject(parent){}
+    virtual ~IConfigMgr() = default;
     virtual QsciScintillaPtr createSciObject(QWidget* parent = nullptr) = 0;
     virtual void configSciObject(QsciScintillaPtr sciPtr) = 0;
     virtual void setProperty(const QString &key, const QVariant &value) = 0;
@@ -24,7 +29,7 @@ typedef std::shared_ptr<IConfigMgr> ConfigMgrPtr;
 
 class ConfigMgr : public IConfigMgr
 {
-    //Q_OBJECT
+    Q_OBJECT
 public:
     explicit ConfigMgr(QObject *parent = nullptr);
 
@@ -37,5 +42,5 @@ private:
     QSettings settings_;
 
 };
-
+}
 #endif // CONFIGMGR_H
