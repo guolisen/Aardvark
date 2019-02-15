@@ -366,11 +366,11 @@ FORMS += \
     View/logdocwindow.ui \
     View/SettingPanel/fontform.ui
 
-INCLUDEPATH += "E:/code/qt/Aardvark/Thirdparty/QScintilla" \
-    "E:/code/qt/Aardvark/Thirdparty/QScintilla/lexlib" \
-    "E:/code/qt/Aardvark/Thirdparty/QScintilla/src" \
-    "E:/code/qt/Aardvark/Thirdparty/QScintilla/Qt4Qt5" \
-    "E:/code/qt/Aardvark/Thirdparty/QScintilla/include"
+INCLUDEPATH += "Thirdparty/QScintilla" \
+    "Thirdparty/QScintilla/lexlib" \
+    "Thirdparty/QScintilla/src" \
+    "Thirdparty/QScintilla/Qt4Qt5" \
+    "Thirdparty/QScintilla/include"
 
 #LIBS += -LE:/code/sci/QScintilla_gpl-2.10.8/build-Thirdparty/QScintilla-Desktop_Qt_5_11_2_MinGW_32bit-Debug/debug -lQScintilla2_qt5d
 
