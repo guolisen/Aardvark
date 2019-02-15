@@ -53,10 +53,10 @@ SettingPanel::SettingPanel(core::ContextPtr context, QWidget *parent)
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
     slotCurrentChanged(0);
 
-    //minButton = new EPushButton(this);
-    //minButton->setPixName(":/res/SettingPanel/min");
-    //minButton->setToolTip(tr("minimize"));
-    //connect(minButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
+    minButton = new EPushButton(this);
+    minButton->setPixName(":/res/SettingPanel/min");
+    minButton->setToolTip(tr("minimize"));
+    connect(minButton, SIGNAL(clicked()), this, SLOT(showMinimized()));
 
     closeButton = new EPushButton(this);
     closeButton->setPixName(":/res/SettingPanel/close");
