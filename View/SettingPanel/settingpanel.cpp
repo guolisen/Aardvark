@@ -88,15 +88,7 @@ SettingPanel::SettingPanel(core::ContextPtr context, QWidget *parent)
 
 SettingPanel::~SettingPanel()
 {
-    DELETE_OBJECT(minButton);
-    DELETE_OBJECT(closeButton);
-    DELETE_OBJECT(tabWidget);
-    DELETE_OBJECT(contentsWidget);
-    DELETE_OBJECT(widgetScrollArea);
-    DELETE_OBJECT(scrollArea);
-    DELETE_OBJECT(generalWidget);
-    DELETE_OBJECT(fontWidget);
-    DELETE_OBJECT(animation_);
+
 }
 
 void SettingPanel::resizeEvent(QResizeEvent *event)

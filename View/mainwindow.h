@@ -21,6 +21,8 @@ public:
 private slots:
     void open();
 private:
+    void createMenu();
+    void createDock();
     bool openFile(const QString &fileName);
     bool loadFile(const QString &fileName);
     QMdiSubWindow *findMdiChild(const QString &fileName) const;

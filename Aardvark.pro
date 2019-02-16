@@ -235,7 +235,8 @@ SOURCES += \
     Thirdparty/QScintilla/src/ViewStyle.cpp \
     Thirdparty/QScintilla/src/XPM.cpp \
     Core/configmgr.cpp \
-    Core/appcontext.cpp
+    Core/appcontext.cpp \
+    View/addregexdialog.cpp
 
 HEADERS += \
     View/mainwindow.h \
@@ -359,12 +360,14 @@ HEADERS += \
     Thirdparty/QScintilla/src/XPM.h \
     Core/configmgr.h \
     Core/commondefine.h \
-    Core/appcontext.h
+    Core/appcontext.h \
+    View/addregexdialog.h
 
 FORMS += \
     View/mainwindow.ui \
     View/logdocwindow.ui \
-    View/SettingPanel/fontform.ui
+    View/SettingPanel/fontform.ui \
+    View/addregexdialog.ui
 
 INCLUDEPATH += "Thirdparty/QScintilla" \
     "Thirdparty/QScintilla/lexlib" \

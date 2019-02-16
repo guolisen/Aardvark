@@ -1840,8 +1840,8 @@ bool QsciScintilla::doFind()
     long targend = SendScintilla(SCI_GETTARGETEND);
 
     // Ensure the text found is visible if required.
-    //if (findState.show)
-    if (false)
+    if (findState.show)
+    //if (false)
     {
         int startLine = SendScintilla(SCI_LINEFROMPOSITION, targstart);
         int endLine = SendScintilla(SCI_LINEFROMPOSITION, targend);

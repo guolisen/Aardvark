@@ -38,16 +38,17 @@ void FontForm::createPanel()
                   "QPushButton:hover {background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);}"
                   "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
 
-    textPrevious_ = configer_->createSciObject(this);
-    textPrevious_->setGeometry(10, 260, 700, 320);
-    textLexerCem_ = dynamic_cast<QsciLexerCem*>(textPrevious_->lexer());
-
+    QString fileText = "";
     QFile file(":/View/SettingPanel/exampleText.txt");
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
         QTextStream in(&file);
-        textPrevious_->setText(in.readAll());
+        fileText = in.readAll();
     }
+
+    textPrevious_ = configer_->createSciObject(fileText, this);
+    textPrevious_->setGeometry(10, 260, 700, 320);
+    textLexerCem_ = dynamic_cast<QsciLexerCem*>(textPrevious_->lexer());
 
     readSetting();
 

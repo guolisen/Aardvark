@@ -477,7 +477,7 @@ void Editor::Redraw() {
 	wMain.InvalidateRectangle(rcClient);
 	if (wMargin.GetID())
 		wMargin.InvalidateAll();
-	//wMain.InvalidateAll();
+    //wMain.InvalidateAll();
 }
 
 void Editor::RedrawSelMargin(int line, bool allAfter) {

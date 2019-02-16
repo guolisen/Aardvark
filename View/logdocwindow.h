@@ -44,6 +44,7 @@ struct IndicatorEntry
             return false;
         if(indexTo != r.indexTo)
             return false;
+        return true;
     }
 };
 
@@ -78,6 +79,8 @@ public:
     QString currentFile() const { return curFile_; }
     QsciScintillaPtr getSci() const { return textMain_; }
     void setNewContent(QString);
+    void createRegexChildWin(const QString& regexStr);
+    void popAddRegexWin();
 
 private slots:
     void findNextClick();
@@ -86,7 +89,8 @@ private slots:
 
     void clearMarkClick();
     void IndicatorClicked(int line, int index, Qt::KeyboardModifiers state);
-    void newWinTest();
+    void popAddKeywordWin();
+    void MarginClicked(int margin, int line, Qt::KeyboardModifiers state);
 private:
     void setCurrentFile(const QString& fileName) { curFile_ = fileName; }
     void createFindBar();
@@ -101,7 +105,7 @@ private:
     QColor getRandomColor(COLORLEVEL colorLevel, int alpha);
     void setWrapComplete(const QString &keyWord);
     void createPopMenu();
-
+    void createSciObject(const QString& text);
 private:
     Ui::LogDocWindow *ui;
     QsciScintillaPtr textMain_;
@@ -128,6 +132,7 @@ private:
     QMenu* rightPopMenu_;
     core::ContextPtr context_;
     core::ConfigMgrPtr config_;
+    int markNum_;
 };
 
 #endif // LOGDOCWINDOW_H

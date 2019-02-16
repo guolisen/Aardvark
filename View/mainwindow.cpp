@@ -9,6 +9,7 @@
 #include <Core/configmgr.h>
 #include <View/SettingPanel/settingpanel.h>
 
+
 MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     context_(context),
@@ -26,23 +27,16 @@ MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
         tab->setAutoFillBackground(true);
     }
 
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    QAction *newAct = new QAction(tr("&Open"), this);
-    newAct->setShortcuts(QKeySequence::Open);
-    newAct->setStatusTip(tr("Open a new file"));
-    connect(newAct, &QAction::triggered, this, &MainWindow::open);
-    fileMenu->addAction(newAct);
+    createMenu();
+    createDock();
+}
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
-    QMenu *confgiMenu = menuBar()->addMenu(tr("&Config"));
-    QAction *settingAct = new QAction(tr("&Preferences"), this);
-    settingAct->setShortcuts(QKeySequence::Preferences);
-    settingAct->setStatusTip(tr("Open Preferences"));
-    connect(settingAct, &QAction::triggered, this, [this](){
-        if (settingPanel_->exec() != QDialog::Accepted)
-            return;
-    });
-    confgiMenu->addAction(settingAct);
-
+void MainWindow::createDock()
+{
     setDockNestingEnabled(true);
     QDockWidget *dw = new QDockWidget;
     dw->setWidget(new QListView);
@@ -54,9 +48,39 @@ MainWindow::MainWindow(core::ContextPtr context, QWidget *parent) :
     addDockWidget(Qt::LeftDockWidgetArea, dw1);
     tabifyDockWidget(dw, dw1);
 }
-MainWindow::~MainWindow()
+
+void MainWindow::createMenu()
 {
-    delete ui;
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    QAction *newAct = new QAction(tr("&Open"), this);
+    newAct->setShortcuts(QKeySequence::Open);
+    newAct->setStatusTip(tr("Open a new file"));
+    connect(newAct, &QAction::triggered, this, &MainWindow::open);
+    fileMenu->addAction(newAct);
+
+    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+    QAction *addRegexWinAct = new QAction(tr("&Add Regex Win"), this);
+    addRegexWinAct->setStatusTip(tr("Add Regex Win"));
+    connect(addRegexWinAct, &QAction::triggered, this, [this](){
+        QMdiSubWindow* currentWin = ui->mdiArea->currentSubWindow();
+        if (!currentWin)
+            return;
+        LogDocWindow* currentChild = dynamic_cast<LogDocWindow*>(currentWin->widget());
+        if (!currentChild)
+            return;
+        currentChild->popAddRegexWin();
+    });
+    viewMenu->addAction(addRegexWinAct);
+
+    QMenu *confgiMenu = menuBar()->addMenu(tr("&Config"));
+    QAction *settingAct = new QAction(tr("&Preferences"), this);
+    settingAct->setShortcuts(QKeySequence::Preferences);
+    settingAct->setStatusTip(tr("Open Preferences"));
+    connect(settingAct, &QAction::triggered, this, [this](){
+        if (settingPanel_->exec() != QDialog::Accepted)
+            return;
+    });
+    confgiMenu->addAction(settingAct);
 }
 
 void MainWindow::open()

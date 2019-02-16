@@ -1,12 +1,13 @@
+#include <QDebug>
 #include "configmgr.h"
 #include <QSci/qsciscintilla.h>
 #include <QSci/qscilexercem.h>
 
 namespace core {
 
-const int MarginLineNum = 0;
-const int MarginFold = 1;
-const int MarginMark = 2;
+const int MarginFold = 3;
+const int MarginLineNum = 2;
+const int MarginMark = 1;
 
 //ConfigMgr::ConfigMgr(QObject *parent):
     //settings_("./Config.ini", QSettings::IniFormat)
@@ -17,26 +18,50 @@ ConfigMgr::ConfigMgr(QObject *parent):
 
 }
 
+int ConfigMgr::getMarginWidthByLineNum(int lineNum)
+{
+    int count = 1;
+    while(true)
+    {
+        lineNum /= 10;
+        if(!lineNum)
+            return count * 15;
+        ++count;
+    }
+}
+
 void ConfigMgr::configSciObject(QsciScintillaPtr sciPtr)
 {
-    sciPtr->setScrollWidthTracking(true);
+    sciPtr->markerDefine((QsciScintilla::MarkerSymbol)QsciScintilla::SC_MARK_ARROW, MarginMark);
+    sciPtr->setMarginBackgroundColor(MarginMark, QColor(100, 0, 0));
+    //sciPtr->setMarginsForegroundColor(QColor(0, 200, 0));
+    sciPtr->setMarkerForegroundColor(QColor(0, 200, 0), MarginMark);
+    sciPtr->setMarkerBackgroundColor(QColor(100, 100, 100), MarginMark);
+    sciPtr->setMarginOptions(QsciScintilla::SC_MARGINOPTION_SUBLINESELECT);
+    sciPtr->setMarginSensitivity(3, true);
+    sciPtr->setMarginSensitivity(2, true);
+    sciPtr->setMarginSensitivity(1, true);
+sciPtr->setMarginSensitivity(0, true);
+    sciPtr->setMarginMarkerMask(MarginMark, 0xFF);
+    sciPtr->setMarginType(MarginMark, QsciScintilla::SymbolMargin);
+    sciPtr->setMarginWidth(MarginMark, 20);
+
     sciPtr->setMarginType(MarginLineNum, QsciScintilla::NumberMargin);
-    sciPtr->setMarginWidth(MarginLineNum,40);
-    sciPtr->setCaretLineVisible(true);
-    sciPtr->setCaretLineBackgroundColor(QColor(240, 240, 240));
-    sciPtr->SendScintilla(QsciScintilla::SCI_SETCODEPAGE, QsciScintilla::SC_CP_UTF8);
-    sciPtr->setScrollWidth(20);
+    sciPtr->setMarginWidth(MarginLineNum, getMarginWidthByLineNum(sciPtr->lines()));
 
     sciPtr->setMarginType(MarginFold, QsciScintilla::SymbolMargin);
     sciPtr->setMarginMarkerMask(MarginFold, QsciScintilla::SC_MASK_FOLDERS);
     sciPtr->setFolding(QsciScintilla::BoxedTreeFoldStyle, MarginFold);
 
-    sciPtr->setMarginType(MarginMark, QsciScintilla::SymbolMargin);
-    sciPtr->setMarginWidth(MarginLineNum,20);
+    sciPtr->setCaretLineVisible(true);
+    sciPtr->setCaretLineBackgroundColor(QColor(240, 240, 240));
+    sciPtr->setScrollWidthTracking(true);
+    sciPtr->SendScintilla(QsciScintilla::SCI_SETCODEPAGE, QsciScintilla::SC_CP_UTF8);
+    sciPtr->setScrollWidth(20);
 
     QsciLexer* lexer = sciPtr->lexer();
     const bool showLineNumber = settings_.value("editor/showLineNumber", true).toBool();
-    sciPtr->setMarginLineNumbers(0, showLineNumber);
+    sciPtr->setMarginLineNumbers(MarginLineNum, showLineNumber);
 
     const QString editorCharFont = settings_.value("editor/editorCharFont", "").toString();
     QFont font;
@@ -64,12 +89,12 @@ void ConfigMgr::configSciObject(QsciScintillaPtr sciPtr)
     lexer->setPaper(bgcolor);
 }
 
-QsciScintillaPtr ConfigMgr::createSciObject(QWidget* parent)
+QsciScintillaPtr ConfigMgr::createSciObject(const QString& text, QWidget* parent)
 {
     QsciScintillaPtr sciObject = std::make_shared<QsciScintilla>(parent);
     QsciLexer* lexer = new QsciLexerCem();
     sciObject->setLexer(lexer);
-
+    sciObject->setText(text);
     configSciObject(sciObject);
 
     return sciObject;

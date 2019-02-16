@@ -7,6 +7,7 @@
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexercem.h>
 #include <Qsci/qscilexercem.h>
+#include <View/addregexdialog.h>
 
 LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
@@ -30,22 +31,27 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *par
                   "QPushButton:hover {background: qradialgradient(cx: 0.3, cy: -0.4,fx: 0.3, fy: -0.4,radius: 3, stop: 0 #828282, stop: 1 #969696);}"
                   "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
 
-    textMain_  = config_->createSciObject(this);
+    setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void LogDocWindow::createSciObject(const QString& text)
+{
+    textMain_  = config_->createSciObject(text, this);
     textLexer_ = dynamic_cast<QsciLexerCem*>(textMain_->lexer());
     setCentralWidget(textMain_.get());
-    setAttribute(Qt::WA_DeleteOnClose);
+    connect(textMain_.get(), SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
+            this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
+    connect(textMain_.get(), SIGNAL(marginClicked(int, int, Qt::KeyboardModifiers)),
+            this, SLOT(MarginClicked(int, int, Qt::KeyboardModifiers)));
 
     createFindBar();
     createPopMenu();
-
-    connect(textMain_.get(), SIGNAL(indicatorClicked(int, int, Qt::KeyboardModifiers)),
-            this, SLOT(IndicatorClicked(int, int, Qt::KeyboardModifiers)));
 }
 
 LogDocWindow::~LogDocWindow()
 {
     delete ui;
-    delete textLexer_;
+    //delete textLexer_;
 }
 
 void LogDocWindow::clearMarkClick()
@@ -73,17 +79,58 @@ void LogDocWindow::clearMarkClick()
         return;
     clearIndicator(keyStr, indicator);
 }
+void LogDocWindow::popAddRegexWin()
+{
+    AddRegexDialog dialog(context_);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+    QString regexStr = dialog.getRegexStr();
+    if (regexStr.isEmpty())
+    {
+        QMessageBox::warning(this, tr("Add Regex Win"), tr("Regex string is empty."));
+        return;
+    }
+
+    createRegexChildWin(regexStr);
+}
+void LogDocWindow::popAddKeywordWin()
+{
+    QString selectStr = textMain_->selectedText();
+    if (selectStr.isEmpty())
+    {
+        QMessageBox::warning(this, tr("Add Keyword Win"), tr("Please select a keyword"));
+        return;
+    }
+    createRegexChildWin(selectStr);
+}
 void LogDocWindow::createPopMenu()
 {
     rightPopMenu_ = new QMenu(this);
     rightPopMenu_->addAction(tr("&Copy"), textMain_.get(), SLOT(copy()));
-    rightPopMenu_->addAction(tr("Clear Mark"), this, SLOT(clearMarkClick()));
+    rightPopMenu_->addAction(tr("&Clear Mark"), this, SLOT(clearMarkClick()));
+    rightPopMenu_->addAction(tr("&Create Keyword Win"), this, SLOT(popAddKeywordWin()));
     rightPopMenu_->addSeparator();
     rightPopMenu_->addAction(tr("Select All"), textMain_.get(), SLOT(selectAll()));
 
     connect(textMain_.get(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPopMenu(const QPoint&)));
 
     textMain_->setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void LogDocWindow::MarginClicked(int margin, int line, Qt::KeyboardModifiers state)
+{
+    if (margin != 0)
+        return;
+    if (textMain_->markersAtLine(line))
+    {
+        textMain_->markerDelete(line);
+        return;
+    }
+    textMain_->markerAdd(line, 3);
+    textMain_->markerAdd(line, 2);
+    textMain_->markerAdd(line, 1);
+    textMain_->markerAdd(line, 0);
+    //textMain_->annotate(line, "TETETET", 0);
 }
 
 void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers state)
@@ -100,13 +147,13 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
         int lev = textMain_->SendScintilla(QsciScintillaBase::SCI_GETFOLDLEVEL, (long)i);
         QString lineStr = textMain_->text(i);
 
-        if (lineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
+        if (lineStr.contains("MAKE", Qt::CaseInsensitive))
         {
             tokenTag = true;
             int levelNext = QsciScintillaBase::SC_FOLDLEVELBASE;
 
             QString nextLineStr = textMain_->text(i + 1);
-            if (!nextLineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
+            if (!nextLineStr.contains("MAKE", Qt::CaseInsensitive))
                 ++levelNext;
             lev |= levelNext << 16;
             lev |= QsciScintillaBase::SC_FOLDLEVELHEADERFLAG;
@@ -120,7 +167,7 @@ void LogDocWindow::IndicatorClicked(int line, int index, Qt::KeyboardModifiers s
                 levelCurrent = 0x4010401;
 
             QString nextLineStr = textMain_->text(i + 1);
-            if (nextLineStr.contains("UIS_UpgradeServices", Qt::CaseInsensitive))
+            if (nextLineStr.contains("MAKE", Qt::CaseInsensitive))
             {
                 int levelNext = 0x400 << 16;
                 levelCurrent &= 0x0000FFFF;
@@ -278,8 +325,10 @@ void LogDocWindow::markAllClick()
     }
 }
 
-void LogDocWindow::newWinTest()
+void LogDocWindow::createRegexChildWin(const QString& regexStr)
 {
+    if (regexStr.isEmpty())
+        return;
     LogDocWindow *child = new LogDocWindow(mdi_, context_, this);
     mdi_->addSubWindow(child);
 
@@ -291,8 +340,8 @@ void LogDocWindow::newWinTest()
         tab->setTabTextColor(index, QColor(160, 0, 160));
     }
 
-    child->setNewContent(findEdit_->text());
-    child->setWindowTitle(findEdit_->text());
+    child->setNewContent(regexStr);
+    child->setWindowTitle(windowTitle()+ ":" +regexStr);
     child->show();
 }
 
@@ -319,9 +368,9 @@ void LogDocWindow::createFindBar()
     regexAct_->setCheckable(true);
     backslashAct_ = new QAction(QIcon(":/res/FindTB/backslash24"), tr("&Backslash"), this);
     backslashAct_->setCheckable(true);
-    aroundAct_ = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
+    //aroundAct_ = new QAction(QIcon(":/res/FindTB/around24"), tr("&Around"), this);
     //aroundAct_->setCheckable(true);
-    connect(aroundAct_, SIGNAL(triggered()), this, SLOT(newWinTest()));
+    //connect(aroundAct_, SIGNAL(triggered()), this, SLOT(createRegexChildWin()));
 
     upAct_ = new QAction(QIcon(":/res/FindTB/up24"), tr("&Up"), this);
     upAct_->setCheckable(true);
@@ -337,7 +386,7 @@ void LogDocWindow::createFindBar()
     fileToolBar_->addAction(caseAct_);
     fileToolBar_->addAction(regexAct_);
     fileToolBar_->addAction(backslashAct_);
-    fileToolBar_->addAction(aroundAct_);
+    //fileToolBar_->addAction(aroundAct_);
     fileToolBar_->addAction(upAct_);
 }
 
@@ -354,7 +403,7 @@ bool LogDocWindow::loadFile(const QString &fileName)
 
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    textMain_->setText(in.readAll());
+    createSciObject(in.readAll());
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);

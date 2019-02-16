@@ -20,7 +20,7 @@ class IConfigMgr: public QObject
 public:
     IConfigMgr(QObject *parent = nullptr):QObject(parent){}
     virtual ~IConfigMgr() = default;
-    virtual QsciScintillaPtr createSciObject(QWidget* parent = nullptr) = 0;
+    virtual QsciScintillaPtr createSciObject(const QString& test, QWidget* parent = nullptr) = 0;
     virtual void configSciObject(QsciScintillaPtr sciPtr) = 0;
     virtual void setProperty(const QString &key, const QVariant &value) = 0;
     virtual QVariant getProperty(const QString &key, const QVariant &defaultValue = QVariant()) const = 0;
@@ -33,14 +33,14 @@ class ConfigMgr : public IConfigMgr
 public:
     explicit ConfigMgr(QObject *parent = nullptr);
 
-    virtual QsciScintillaPtr createSciObject(QWidget* parent = nullptr) override;
+    virtual QsciScintillaPtr createSciObject(const QString& text, QWidget* parent = nullptr) override;
     virtual void configSciObject(QsciScintillaPtr sciPtr) override;
     virtual void setProperty(const QString &key, const QVariant &value) override;
     virtual QVariant getProperty(const QString &key, const QVariant &defaultValue = QVariant()) const  override;
 
 private:
+    int getMarginWidthByLineNum(int lineNum);
     QSettings settings_;
-
 };
 }
 #endif // CONFIGMGR_H
