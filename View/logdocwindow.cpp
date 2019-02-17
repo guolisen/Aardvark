@@ -126,9 +126,9 @@ void LogDocWindow::MarginClicked(int margin, int line, Qt::KeyboardModifiers sta
         textMain_->markerDelete(line);
         return;
     }
-    textMain_->markerAdd(line, 3);
-    textMain_->markerAdd(line, 2);
-    textMain_->markerAdd(line, 1);
+    //textMain_->markerAdd(line, 3);
+    //textMain_->markerAdd(line, 2);
+    //textMain_->markerAdd(line, 1);
     textMain_->markerAdd(line, 0);
     //textMain_->annotate(line, "TETETET", 0);
 }

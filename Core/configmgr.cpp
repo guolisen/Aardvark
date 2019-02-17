@@ -5,9 +5,9 @@
 
 namespace core {
 
-const int MarginFold = 3;
-const int MarginLineNum = 2;
-const int MarginMark = 1;
+const int MarginFold = 2;
+const int MarginLineNum = 1;
+const int MarginMark = 0;
 
 //ConfigMgr::ConfigMgr(QObject *parent):
     //settings_("./Config.ini", QSettings::IniFormat)
@@ -33,20 +33,19 @@ int ConfigMgr::getMarginWidthByLineNum(int lineNum)
 void ConfigMgr::configSciObject(QsciScintillaPtr sciPtr)
 {
     sciPtr->markerDefine((QsciScintilla::MarkerSymbol)QsciScintilla::SC_MARK_ARROW, MarginMark);
+    sciPtr->setMarginMarkerMask(MarginMark, 0x01);
+    sciPtr->setMarginSensitivity(0, true);
     sciPtr->setMarginBackgroundColor(MarginMark, QColor(100, 0, 0));
     //sciPtr->setMarginsForegroundColor(QColor(0, 200, 0));
     sciPtr->setMarkerForegroundColor(QColor(0, 200, 0), MarginMark);
     sciPtr->setMarkerBackgroundColor(QColor(100, 100, 100), MarginMark);
     sciPtr->setMarginOptions(QsciScintilla::SC_MARGINOPTION_SUBLINESELECT);
-    sciPtr->setMarginSensitivity(3, true);
-    sciPtr->setMarginSensitivity(2, true);
-    sciPtr->setMarginSensitivity(1, true);
-sciPtr->setMarginSensitivity(0, true);
-    sciPtr->setMarginMarkerMask(MarginMark, 0xFF);
+
     sciPtr->setMarginType(MarginMark, QsciScintilla::SymbolMargin);
     sciPtr->setMarginWidth(MarginMark, 20);
 
     sciPtr->setMarginType(MarginLineNum, QsciScintilla::NumberMargin);
+    sciPtr->setMarginMarkerMask(MarginLineNum, 0x00);
     sciPtr->setMarginWidth(MarginLineNum, getMarginWidthByLineNum(sciPtr->lines()));
 
     sciPtr->setMarginType(MarginFold, QsciScintilla::SymbolMargin);
