@@ -32,6 +32,7 @@ int ConfigMgr::getMarginWidthByLineNum(int lineNum)
 
 void ConfigMgr::configSciObject(QsciScintillaPtr sciPtr)
 {
+    sciPtr->SendScintilla(QsciScintilla::SCI_SETCARETLINEVISIBLEALWAYS, true);
     sciPtr->markerDefine((QsciScintilla::MarkerSymbol)QsciScintilla::SC_MARK_LCORNER, MarginMark);
     sciPtr->setMarginMarkerMask(MarginMark, 0x01);
     sciPtr->setMarginSensitivity(0, true);

@@ -33,6 +33,8 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *par
 
     setAttribute(Qt::WA_DeleteOnClose);
     createSciObject("");
+    createFindBar();
+    createPopMenu();
 }
 
 void LogDocWindow::createSciObject(const QString& text)
@@ -45,8 +47,6 @@ void LogDocWindow::createSciObject(const QString& text)
     connect(textMain_.get(), SIGNAL(marginClicked(int, int, Qt::KeyboardModifiers)),
             this, SLOT(MarginClicked(int, int, Qt::KeyboardModifiers)));
 
-    createFindBar();
-    createPopMenu();
 }
 
 LogDocWindow::~LogDocWindow()
@@ -143,7 +143,7 @@ void LogDocWindow::MarginClicked(int margin, int line, Qt::KeyboardModifiers sta
     //lev |= levelNext << 16;
     //lev |= QsciScintillaBase::SC_FOLDLEVELHEADERFLAG;
     //textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)line, (long)lev);
-textMain_->SendScintilla(QsciScintilla::SCI_FOLDLINE, line, QsciScintilla::SC_FOLDACTION_TOGGLE);
+//textMain_->SendScintilla(QsciScintilla::SCI_FOLDLINE, line, QsciScintilla::SC_FOLDACTION_TOGGLE);
     //textMain_->annotate(line, "TETETET", 0);
 }
 
@@ -348,6 +348,7 @@ void LogDocWindow::createRegexChildWin(const QString& regexStr)
     mdi_->addSubWindow(child);
 
     child->getSci()->setDocument(textMain_->document());
+    config_->configSciObject(child->getSci());
 
     Q_FOREACH (QTabBar* tab, mdi_->findChildren<QTabBar *>())
     {
