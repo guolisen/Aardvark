@@ -32,13 +32,13 @@ int ConfigMgr::getMarginWidthByLineNum(int lineNum)
 
 void ConfigMgr::configSciObject(QsciScintillaPtr sciPtr)
 {
-    sciPtr->markerDefine((QsciScintilla::MarkerSymbol)QsciScintilla::SC_MARK_ARROW, MarginMark);
+    sciPtr->markerDefine((QsciScintilla::MarkerSymbol)QsciScintilla::SC_MARK_LCORNER, MarginMark);
     sciPtr->setMarginMarkerMask(MarginMark, 0x01);
     sciPtr->setMarginSensitivity(0, true);
-    sciPtr->setMarginBackgroundColor(MarginMark, QColor(100, 0, 0));
+    //sciPtr->setMarginBackgroundColor(MarginMark, QColor(255, 255, 255));
     //sciPtr->setMarginsForegroundColor(QColor(0, 200, 0));
-    sciPtr->setMarkerForegroundColor(QColor(0, 200, 0), MarginMark);
-    sciPtr->setMarkerBackgroundColor(QColor(100, 100, 100), MarginMark);
+    sciPtr->setMarkerForegroundColor(QColor(200, 0, 0), MarginMark);
+    sciPtr->setMarkerBackgroundColor(QColor(200, 0, 0), MarginMark);
     sciPtr->setMarginOptions(QsciScintilla::SC_MARGINOPTION_SUBLINESELECT);
 
     sciPtr->setMarginType(MarginMark, QsciScintilla::SymbolMargin);

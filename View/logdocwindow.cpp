@@ -32,6 +32,7 @@ LogDocWindow::LogDocWindow(QMdiArea* mdi, core::ContextPtr context, QWidget *par
                   "QPushButton:pressed {background: qradialgradient(cx: 0.4, cy: -0.1,fx: 0.4, fy: -0.1,radius: 3, stop: 0 #828282, stop: 1 #969696);}");
 
     setAttribute(Qt::WA_DeleteOnClose);
+    createSciObject("");
 }
 
 void LogDocWindow::createSciObject(const QString& text)
@@ -130,6 +131,19 @@ void LogDocWindow::MarginClicked(int margin, int line, Qt::KeyboardModifiers sta
     //textMain_->markerAdd(line, 2);
     //textMain_->markerAdd(line, 1);
     textMain_->markerAdd(line, 0);
+    //textMain_->SendScintilla(QsciScintilla::SCI_SETCARETLINEVISIBLEALWAYS, true);
+        //textMain_->SendScintilla(QsciScintilla::SCI_SETLINESTATE, line, 9);
+    //textMain_->SendScintilla(QsciScintilla::SCI_STYLESETBOLD, 9, true);
+    //textMain_->SendScintilla(QsciScintilla::SCI_STYLESETBACK, 9, QColor(255, 0, 0));
+    //textMain_->SendScintilla(QsciScintilla::SCI_STYLESETVISIBLE, 9, true);
+
+    //textMain_->SendScintilla(QsciScintilla::SCI_SETLINESTATE, line, 9);
+    //int lev = QsciScintillaBase::SC_FOLDLEVELBASE;;
+    //int levelNext = QsciScintillaBase::SC_FOLDLEVELBASE;
+    //lev |= levelNext << 16;
+    //lev |= QsciScintillaBase::SC_FOLDLEVELHEADERFLAG;
+    //textMain_->SendScintilla(QsciScintillaBase::SCI_SETFOLDLEVEL, (long)line, (long)lev);
+textMain_->SendScintilla(QsciScintilla::SCI_FOLDLINE, line, QsciScintilla::SC_FOLDACTION_TOGGLE);
     //textMain_->annotate(line, "TETETET", 0);
 }
 
@@ -247,8 +261,8 @@ KeyWordEntry LogDocWindow::createIndicatorNum(const QString& keyWord)
     }
 
     KeyWordEntry entry;
-    entry.indicatorNum = textMain_->indicatorDefine(QsciScintilla::RoundBoxIndicator);
-    entry.keyWordColor = getRandomColor(LIGHTLEVEL, 200);
+    entry.indicatorNum = textMain_->indicatorDefine(QsciScintilla::FullBoxIndicator);
+    entry.keyWordColor = getRandomColor(LIGHTLEVEL, 100);
     indicatorKeyWordMap_[keyWord] = entry;
 
     return entry;
@@ -300,7 +314,8 @@ void LogDocWindow::markAllClick()
     if (indicator.isWrap)
         return;
 
-    //textMain_->setIndicatorForegroundColor(indicator.keyWordColor, indicator.indicatorNum);
+    //textMain_->setIndenta  (indicator.keyWordColor);
+    textMain_->setIndicatorForegroundColor(indicator.keyWordColor, indicator.indicatorNum);
     textMain_->setIndicatorDrawUnder(true, indicator.indicatorNum);
     //textMain_->setIndicatorOutlineColor(indicator.keyWordColor, indicator.indicatorNum);
 
